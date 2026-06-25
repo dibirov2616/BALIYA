@@ -9,6 +9,17 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Montserrat',sans-serif;font-weight:300;background:#f5f7fa;color:#1a1a2e}
+#lock-screen{position:fixed;inset:0;z-index:9999;background:#1a1a2e;display:flex;align-items:center;justify-content:center}
+#lock-screen.hidden{display:none}
+.lock-box{background:#fff;border-radius:16px;padding:2.5rem;width:100%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.lock-logo{font-size:1.1rem;font-weight:600;letter-spacing:.15em;color:#1a1a2e;margin-bottom:.3rem}
+.lock-logo span{color:#C4963A}
+.lock-sub{font-size:.72rem;color:#9ca3af;letter-spacing:.08em;margin-bottom:1.8rem}
+.lock-input{width:100%;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:.7rem 1rem;color:#1a1a2e;font-size:.9rem;font-family:'Montserrat',sans-serif;text-align:center;letter-spacing:.15em;outline:none;transition:border-color .2s;margin-bottom:.75rem}
+.lock-input:focus{border-color:#C4963A}
+.lock-btn{width:100%;background:#C4963A;color:#fff;border:none;border-radius:8px;padding:.75rem;font-size:.8rem;font-weight:500;letter-spacing:.1em;cursor:pointer;font-family:'Montserrat',sans-serif;transition:background .2s}
+.lock-btn:hover{background:#a07a2e}
+.lock-error{color:#ef4444;font-size:.75rem;margin-top:.5rem;display:none}
 
 .header{background:#1a1a2e;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
 .logo{font-size:1rem;font-weight:600;letter-spacing:.15em;color:#fff}
@@ -85,6 +96,17 @@ td{padding:.8rem 1rem;font-size:.8rem;font-weight:300}
 </style>
 </head>
 <body>
+
+<!-- LOCK SCREEN -->
+<div id="lock-screen">
+  <div class="lock-box">
+    <div class="lock-logo">БАЛИЯ <span>CRM</span></div>
+    <div class="lock-sub">Введите пароль для доступа</div>
+    <input class="lock-input" id="lock-input" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkPass()"/>
+    <button class="lock-btn" onclick="checkPass()">Войти</button>
+    <div class="lock-error" id="lock-error">Неверный пароль</div>
+  </div>
+</div>
 
 <!-- HEADER -->
 <div class="header">
@@ -248,6 +270,21 @@ td{padding:.8rem 1rem;font-size:.8rem;font-weight:300}
 </div>
 
 <script>
+// ПАРОЛЬ
+function checkPass() {
+  var val = document.getElementById('lock-input').value;
+  if (val === 'SSS123321') {
+    sessionStorage.setItem('baliya_auth', '1');
+    document.getElementById('lock-screen').classList.add('hidden');
+  } else {
+    document.getElementById('lock-error').style.display = 'block';
+    document.getElementById('lock-input').value = '';
+  }
+}
+if (sessionStorage.getItem('baliya_auth') === '1') {
+  document.getElementById('lock-screen').classList.add('hidden');
+}
+
 let bookings = JSON.parse(localStorage.getItem('baliya_bookings') || '[]');
 let currentFilter = 'all';
 
