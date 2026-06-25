@@ -484,5 +484,130 @@
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 </script>
+
+<!-- ИИ АССИСТЕНТ -->
+<style>
+#chat-bubble{position:fixed;bottom:1.75rem;right:1.75rem;z-index:9999}
+#chat-btn{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#5C3D1E,#8B6340);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(92,61,30,.45);transition:transform .2s,box-shadow .2s;border:none}
+#chat-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(92,61,30,.55)}
+#chat-window{position:absolute;bottom:72px;right:0;width:340px;background:#fff;border-radius:16px;box-shadow:0 12px 48px rgba(0,0,0,.18);border:1px solid #e8ddd0;display:none;flex-direction:column;overflow:hidden;max-height:520px}
+#chat-window.open{display:flex}
+#chat-head{background:linear-gradient(135deg,#3B2009,#5C3D1E);padding:1rem 1.25rem;display:flex;align-items:center;gap:.75rem}
+#chat-avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#chat-msgs{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.65rem;min-height:200px;background:#faf8f5}
+.msg-bot{background:#fff;color:#2c1a08;border-radius:12px 12px 12px 3px;padding:.65rem 1rem;font-size:.82rem;max-width:88%;line-height:1.6;border:1px solid #ede5d8;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.msg-user{background:linear-gradient(135deg,#5C3D1E,#8B6340);color:#fff;border-radius:12px 12px 3px 12px;padding:.65rem 1rem;font-size:.82rem;max-width:88%;align-self:flex-end;line-height:1.6}
+#chat-quick{padding:.6rem 1rem;display:flex;flex-wrap:wrap;gap:.4rem;border-top:1px solid #f0e8de;background:#faf8f5}
+.qbtn{background:#fff;color:#5C3D1E;border-radius:999px;padding:.32rem .8rem;font-size:.72rem;cursor:pointer;border:1px solid #d4c4b0;transition:all .2s;font-family:'Jost',sans-serif}
+.qbtn:hover{background:#5C3D1E;color:#fff;border-color:#5C3D1E}
+#chat-input-row{padding:.7rem 1rem;border-top:1px solid #f0e8de;display:flex;gap:.5rem;background:#fff}
+#chat-input{flex:1;border:1px solid #ddd4c8;border-radius:8px;padding:.45rem .8rem;font-size:.82rem;outline:none;font-family:'Jost',sans-serif;color:#2c1a08;background:#faf8f5}
+#chat-input:focus{border-color:#8B6340}
+#chat-send{background:#5C3D1E;color:#fff;border-radius:8px;padding:.45rem .9rem;cursor:pointer;border:none;font-size:.9rem;transition:background .2s}
+#chat-send:hover{background:#3B2009}
+</style>
+
+<div id="chat-bubble">
+  <div id="chat-window">
+    <div id="chat-head">
+      <div id="chat-avatar">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div>
+        <div style="font-size:.88rem;font-weight:600;color:#fff;letter-spacing:.04em">Ассистент BALIYA</div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,.6);margin-top:.1rem">Онлайн · Отвечает сразу</div>
+      </div>
+      <button onclick="toggleChat()" style="margin-left:auto;background:none;border:none;color:rgba(255,255,255,.5);font-size:1.1rem;cursor:pointer">✕</button>
+    </div>
+    <div id="chat-msgs"></div>
+    <div id="chat-quick">
+      <button class="qbtn" onclick="ask('Хочу забронировать')">🏡 Забронировать</button>
+      <button class="qbtn" onclick="ask('Сколько стоит?')">💰 Цены</button>
+      <button class="qbtn" onclick="ask('Что входит?')">✨ Удобства</button>
+      <button class="qbtn" onclick="ask('Как добраться?')">📍 Адрес</button>
+    </div>
+    <div id="chat-input-row">
+      <input id="chat-input" placeholder="Напишите вопрос..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+      <button id="chat-send" onclick="sendMsg()">→</button>
+    </div>
+  </div>
+  <button id="chat-btn" onclick="toggleChat()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  </button>
+</div>
+
+<script>
+var chatOpen = false;
+var chatStarted = false;
+var WA = 'https://wa.me/79289786078';
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  var win = document.getElementById('chat-window');
+  if (chatOpen) { win.classList.add('open'); if (!chatStarted) { initChat(); chatStarted = true; } }
+  else win.classList.remove('open');
+}
+
+function initChat() {
+  botMsg('Здравствуйте! 🌊 Я ассистент комплекса BALIYA на Каспии. Помогу с бронированием и отвечу на вопросы. Чем могу помочь?');
+}
+
+function botMsg(text) {
+  var msgs = document.getElementById('chat-msgs');
+  var div = document.createElement('div');
+  div.className = 'msg-bot';
+  div.innerHTML = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function userMsg(text) {
+  var msgs = document.getElementById('chat-msgs');
+  var div = document.createElement('div');
+  div.className = 'msg-user';
+  div.textContent = text;
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function ask(text) {
+  userMsg(text);
+  setTimeout(function() { reply(text); }, 400);
+}
+
+function sendMsg() {
+  var inp = document.getElementById('chat-input');
+  var text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  userMsg(text);
+  setTimeout(function() { reply(text); }, 400);
+}
+
+function reply(text) {
+  var t = text.toLowerCase();
+  if (t.includes('бронир') || t.includes('забронир') || t.includes('хочу')) {
+    botMsg('Отлично! Для бронирования напишите нам в WhatsApp — ответим в течение нескольких минут и подберём удобный домик 🏡<br><br><a href="' + WA + '?text=Здравствуйте! Хочу забронировать домик в BALIYA." target="_blank" style="background:#5C3D1E;color:#fff;padding:.45rem 1rem;border-radius:8px;text-decoration:none;font-size:.78rem;display:inline-block;margin-top:.3rem">Написать в WhatsApp →</a>');
+  } else if (t.includes('цен') || t.includes('сколько') || t.includes('стоит') || t.includes('прайс')) {
+    botMsg('Стоимость зависит от домика и сезона:<br><br>🏡 <b>Стандарт</b> — от 5 000 ₽/сутки<br>🏡 <b>Комфорт</b> — от 7 000 ₽/сутки<br>🏡 <b>Премиум</b> — от 10 000 ₽/сутки<br><br>Точную цену на ваши даты уточним в WhatsApp.');
+  } else if (t.includes('удобств') || t.includes('входит') || t.includes('есть') || t.includes('услуг')) {
+    botMsg('В каждом домике:<br>🛏 Спальные места<br>🚿 Душ и санузел<br>❄️ Кондиционер<br>📺 Телевизор<br>🍳 Кухня<br>🔥 Мангал<br>🌊 Выход к Каспию<br>🅿️ Парковка');
+  } else if (t.includes('адрес') || t.includes('добраться') || t.includes('где') || t.includes('находит')) {
+    botMsg('📍 Мы находимся в Избербаше, на берегу Каспийского моря.<br><br>Точный адрес и схему проезда отправим при подтверждении брони в WhatsApp.');
+  } else if (t.includes('свобод') || t.includes('наличи') || t.includes('дат')) {
+    botMsg('Для проверки свободных дат напишите нам в WhatsApp — уточним наличие и быстро забронируем для вас 📅<br><br><a href="' + WA + '?text=Здравствуйте! Хочу проверить наличие свободных домиков." target="_blank" style="background:#5C3D1E;color:#fff;padding:.45rem 1rem;border-radius:8px;text-decoration:none;font-size:.78rem;display:inline-block;margin-top:.3rem">Проверить в WhatsApp →</a>');
+  } else if (t.includes('вместим') || t.includes('человек') || t.includes('гост')) {
+    botMsg('Домики рассчитаны на разное количество гостей:<br>👫 На 2 человека<br>👨‍👩‍👧 На 4 человека<br>👨‍👩‍👧‍👦 На 6-8 человек<br><br>Есть и большие домики для компаний! Уточните количество гостей в WhatsApp.');
+  } else {
+    botMsg('Спасибо за вопрос! Для быстрого ответа напишите нам в WhatsApp — онлайн 24/7 🌊<br><br><a href="' + WA + '" target="_blank" style="background:#5C3D1E;color:#fff;padding:.45rem 1rem;border-radius:8px;text-decoration:none;font-size:.78rem;display:inline-block;margin-top:.3rem">Написать в WhatsApp →</a>');
+  }
+}
+
+setTimeout(function() {
+  if (!chatStarted) {
+    document.getElementById('chat-btn').style.animation = 'pulse 2s infinite';
+  }
+}, 10000);
+</script>
 </body>
 </html>
