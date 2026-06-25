@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Балия — Учёт броней</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Montserrat',sans-serif;font-weight:300;background:#f5f7fa;color:#1a1a2e}
+
+.header{background:#1a1a2e;padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:1rem;font-weight:600;letter-spacing:.15em;color:#fff}
+.logo span{color:#C4963A}
+
+/* VILLA CARDS */
+.villa-card{background:#fff;border-radius:14px;padding:1.2rem;box-shadow:0 2px 12px rgba(0,0,0,.06);cursor:pointer;transition:all .2s;border:2px solid transparent;position:relative;user-select:none}
+.villa-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.1);border-color:#C4963A}
+.villa-card.selected{border-color:#C4963A;background:#fffbf3}
+.villa-card.occupied{background:#fff5f5}
+.villa-card.occupied:hover{border-color:#ef4444}
+.villa-num{font-size:1.4rem;font-weight:600;color:#1a1a2e;margin-bottom:.3rem}
+.villa-status{font-size:.68rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase}
+.villa-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:.35rem}
+.villa-guest{font-size:.72rem;color:#9ca3af;margin-top:.3rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* STATS */
+.stat-card{background:#fff;border-radius:12px;padding:1.1rem 1.4rem;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.stat-val{font-size:1.5rem;font-weight:600;color:#1a1a2e}
+.stat-label{font-size:.68rem;font-weight:400;color:#9ca3af;letter-spacing:.08em;text-transform:uppercase;margin-top:.15rem}
+
+/* BUTTONS */
+.btn-primary{background:#C4963A;color:#fff;border:none;border-radius:8px;padding:.6rem 1.3rem;font-size:.78rem;font-weight:500;letter-spacing:.06em;cursor:pointer;font-family:'Montserrat',sans-serif;transition:background .2s}
+.btn-primary:hover{background:#a07a2e}
+.btn-dark{background:#1a1a2e;color:#fff;border:none;border-radius:8px;padding:.6rem 1.3rem;font-size:.78rem;font-weight:500;letter-spacing:.06em;cursor:pointer;font-family:'Montserrat',sans-serif;transition:background .2s}
+.btn-dark:hover{background:#2d2d4e}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:16px;padding:2rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+
+.form-label{display:block;font-size:.68rem;font-weight:500;letter-spacing:.1em;color:#6b7280;margin-bottom:.4rem;text-transform:uppercase}
+.form-input{width:100%;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:.6rem .9rem;color:#1a1a2e;font-size:.85rem;font-family:'Montserrat',sans-serif;font-weight:300;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:#C4963A;background:#fff}
+
+.btn-submit{background:#1a1a2e;color:#fff;border:none;border-radius:8px;padding:.75rem;font-size:.82rem;font-weight:500;letter-spacing:.08em;cursor:pointer;font-family:'Montserrat',sans-serif;width:100%;margin-top:.5rem;transition:background .2s}
+.btn-submit:hover{background:#2d2d4e}
+
+/* TABLE */
+.table-wrap{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.06);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+thead{background:#1a1a2e}
+thead th{padding:.8rem 1rem;font-size:.68rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.7);text-align:left}
+tbody tr{border-bottom:1px solid #f3f4f6;transition:background .15s}
+tbody tr:hover{background:#fafafa}
+tbody tr:last-child{border-bottom:none}
+td{padding:.8rem 1rem;font-size:.8rem;font-weight:300}
+
+.badge{display:inline-block;padding:.22rem .65rem;border-radius:999px;font-size:.66rem;font-weight:500}
+.badge-paid{background:#dcfce7;color:#16a34a}
+.badge-partial{background:#fef9c3;color:#a16207}
+.badge-unpaid{background:#fee2e2;color:#dc2626}
+.badge-cancelled{background:#f3f4f6;color:#6b7280}
+
+.source-badge{display:inline-block;padding:.18rem .55rem;border-radius:6px;font-size:.66rem;font-weight:400}
+.src-instagram{background:#fce7f3;color:#be185d}
+.src-yandex{background:#fef3c7;color:#92400e}
+.src-direct{background:#e0e7ff;color:#3730a3}
+.src-referral{background:#d1fae5;color:#065f46}
+.src-other{background:#f3f4f6;color:#6b7280}
+
+.villa-badge{display:inline-block;padding:.22rem .65rem;border-radius:8px;font-size:.7rem;font-weight:600;background:#1a1a2e;color:#C4963A}
+
+.btn-del{background:none;border:none;color:#d1d5db;cursor:pointer;padding:.2rem .4rem;border-radius:4px;transition:color .2s;font-size:.85rem}
+.btn-del:hover{color:#ef4444}
+
+.filter-pill{padding:.32rem .85rem;border-radius:999px;border:1px solid #e5e7eb;font-size:.7rem;cursor:pointer;background:#fff;color:#6b7280;font-family:'Montserrat',sans-serif;transition:all .2s}
+.filter-pill.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e}
+
+.empty{text-align:center;padding:3rem;color:#9ca3af;font-size:.82rem}
+
+.section-title{font-size:.72rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:#9ca3af;margin-bottom:.75rem}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">БАЛИЯ <span>CRM</span></div>
+  <div style="font-size:.75rem;color:rgba(255,255,255,.4);letter-spacing:.08em" id="today-date"></div>
+</div>
+
+<div style="max-width:1200px;margin:0 auto;padding:1.5rem">
+
+  <!-- ДОМИКИ -->
+  <div class="section-title">Домики — нажмите чтобы забронировать</div>
+  <div style="display:grid;grid-template-columns:repeat(8,1fr);gap:.75rem;margin-bottom:1.5rem" id="villas-grid">
+  </div>
+
+  <!-- СТАТИСТИКА -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem">
+    <div class="stat-card">
+      <div class="stat-val" id="stat-total">0</div>
+      <div class="stat-label">Всего броней</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="stat-occupied">0</div>
+      <div class="stat-label">Занято сейчас</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="stat-revenue">0 ₽</div>
+      <div class="stat-label">Выручка</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="stat-instagram">0</div>
+      <div class="stat-label">Из Instagram</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="stat-yandex">0</div>
+      <div class="stat-label">Из Яндекс</div>
+    </div>
+  </div>
+
+  <!-- ФИЛЬТРЫ -->
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center">
+    <button class="filter-pill active" data-filter="all" onclick="setFilter('all')">Все брони</button>
+    <button class="filter-pill" data-filter="active" onclick="setFilter('active')">Активные</button>
+    <button class="filter-pill" data-filter="paid" onclick="setFilter('paid')">Оплачено</button>
+    <button class="filter-pill" data-filter="unpaid" onclick="setFilter('unpaid')">Не оплачено</button>
+    <button class="filter-pill" data-filter="instagram" onclick="setFilter('instagram')">Instagram</button>
+    <button class="filter-pill" data-filter="yandex" onclick="setFilter('yandex')">Яндекс</button>
+    <div id="villa-filters" style="display:flex;gap:.5rem;flex-wrap:wrap"></div>
+  </div>
+
+  <!-- ТАБЛИЦА -->
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Домик</th>
+          <th>Гость</th>
+          <th>Телефон</th>
+          <th>Заезд</th>
+          <th>Выезд</th>
+          <th>Ночей</th>
+          <th>Гостей</th>
+          <th>Сумма</th>
+          <th>Оплата</th>
+          <th>Источник</th>
+          <th>Заметки</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="bookings-tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- МОДАЛКА БРОНИРОВАНИЯ -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem">
+      <div>
+        <div style="font-size:.95rem;font-weight:600;letter-spacing:.06em" id="modal-title">Новая бронь</div>
+        <div style="font-size:.75rem;color:#C4963A;margin-top:.2rem;font-weight:500" id="modal-villa-name"></div>
+      </div>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:1.1rem;color:#9ca3af;cursor:pointer">✕</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+
+      <div style="grid-column:1/-1">
+        <label class="form-label">Домик</label>
+        <select class="form-input" id="f-villa">
+          <option value="1">Домик 1</option>
+          <option value="2">Домик 2</option>
+          <option value="3">Домик 3</option>
+          <option value="4">Домик 4</option>
+          <option value="5">Домик 5</option>
+          <option value="6">Домик 6</option>
+          <option value="7">Домик 7</option>
+          <option value="8">Домик 8</option>
+        </select>
+      </div>
+
+      <div style="grid-column:1/-1">
+        <label class="form-label">Имя гостя</label>
+        <input class="form-input" id="f-name" type="text" placeholder="Имя и фамилия"/>
+      </div>
+
+      <div style="grid-column:1/-1">
+        <label class="form-label">Телефон</label>
+        <input class="form-input" id="f-phone" type="tel" placeholder="+7 (___) ___-__-__"/>
+      </div>
+
+      <div>
+        <label class="form-label">Дата заезда</label>
+        <input class="form-input" id="f-checkin" type="date"/>
+      </div>
+
+      <div>
+        <label class="form-label">Дата выезда</label>
+        <input class="form-input" id="f-checkout" type="date"/>
+      </div>
+
+      <div>
+        <label class="form-label">Гостей</label>
+        <input class="form-input" id="f-guests" type="number" min="1" placeholder="2"/>
+      </div>
+
+      <div>
+        <label class="form-label">Сумма (₽)</label>
+        <input class="form-input" id="f-amount" type="number" placeholder="40000"/>
+      </div>
+
+      <div>
+        <label class="form-label">Статус оплаты</label>
+        <select class="form-input" id="f-payment">
+          <option value="unpaid">Не оплачено</option>
+          <option value="partial">Предоплата</option>
+          <option value="paid">Оплачено</option>
+          <option value="cancelled">Отменено</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="form-label">Источник</label>
+        <select class="form-input" id="f-source">
+          <option value="instagram">Instagram</option>
+          <option value="yandex">Яндекс Директ</option>
+          <option value="direct">Прямое обращение</option>
+          <option value="referral">Сарафан</option>
+          <option value="other">Другое</option>
+        </select>
+      </div>
+
+      <div style="grid-column:1/-1">
+        <label class="form-label">Заметки</label>
+        <input class="form-input" id="f-notes" type="text" placeholder="Доп. информация..."/>
+      </div>
+    </div>
+
+    <button class="btn-submit" onclick="addBooking()">Сохранить бронь</button>
+  </div>
+</div>
+
+<script>
+let bookings = JSON.parse(localStorage.getItem('baliya_bookings') || '[]');
+let currentFilter = 'all';
+
+const paymentLabels = {paid:'Оплачено',partial:'Предоплата',unpaid:'Не оплачено',cancelled:'Отменено'};
+const paymentClasses = {paid:'badge-paid',partial:'badge-partial',unpaid:'badge-unpaid',cancelled:'badge-cancelled'};
+const sourceLabels = {instagram:'Instagram',yandex:'Яндекс Директ',direct:'Прямое',referral:'Сарафан',other:'Другое'};
+const sourceClasses = {instagram:'src-instagram',yandex:'src-yandex',direct:'src-direct',referral:'src-referral',other:'src-other'};
+
+function today() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function isOccupied(villaNum) {
+  var t = today();
+  return bookings.some(b => b.villa == villaNum && b.payment !== 'cancelled' && b.checkin <= t && b.checkout > t);
+}
+
+function getCurrentGuest(villaNum) {
+  var t = today();
+  var b = bookings.find(b => b.villa == villaNum && b.payment !== 'cancelled' && b.checkin <= t && b.checkout > t);
+  return b ? b.name : null;
+}
+
+function renderVillas() {
+  var grid = document.getElementById('villas-grid');
+  var html = '';
+  for (var i = 1; i <= 8; i++) {
+    var occ = isOccupied(i);
+    var guest = getCurrentGuest(i);
+    html += `
+      <div class="villa-card ${occ ? 'occupied' : ''}" onclick="openModal(${i})">
+        <div class="villa-num">№${i}</div>
+        <div class="villa-status">
+          <span class="villa-dot" style="background:${occ ? '#ef4444' : '#16a34a'}"></span>
+          <span style="color:${occ ? '#ef4444' : '#16a34a'};font-size:.68rem;font-weight:500">${occ ? 'Занят' : 'Свободен'}</span>
+        </div>
+        ${guest ? `<div class="villa-guest">${guest}</div>` : ''}
+      </div>`;
+  }
+  grid.innerHTML = html;
+
+  // Фильтры по домикам
+  var vf = document.getElementById('villa-filters');
+  var vhtml = '';
+  for (var j = 1; j <= 8; j++) {
+    vhtml += `<button class="filter-pill" data-filter="villa${j}" onclick="setFilter('villa${j}')">Домик ${j}</button>`;
+  }
+  vf.innerHTML = vhtml;
+}
+
+function nights(a, b) {
+  if (!a || !b) return '—';
+  var d = (new Date(b) - new Date(a)) / 86400000;
+  return d > 0 ? d : '—';
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  var p = d.split('-');
+  return p[2] + '.' + p[1];
+}
+
+function formatMoney(n) {
+  if (!n) return '—';
+  return Number(n).toLocaleString('ru-RU') + ' ₽';
+}
+
+function render() {
+  renderVillas();
+
+  var filtered = bookings.filter(b => {
+    if (currentFilter === 'all') return true;
+    if (currentFilter === 'active') return b.payment !== 'cancelled';
+    if (currentFilter === 'paid') return b.payment === 'paid';
+    if (currentFilter === 'unpaid') return b.payment === 'unpaid';
+    if (currentFilter === 'instagram') return b.source === 'instagram';
+    if (currentFilter === 'yandex') return b.source === 'yandex';
+    if (currentFilter.startsWith('villa')) return b.villa == currentFilter.replace('villa','');
+    return true;
+  });
+
+  var tbody = document.getElementById('bookings-tbody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="12" class="empty">Броней не найдено</td></tr>';
+  } else {
+    tbody.innerHTML = filtered.map(b => `
+      <tr>
+        <td><span class="villa-badge">№${b.villa}</span></td>
+        <td style="font-weight:500">${b.name || '—'}</td>
+        <td style="color:#6b7280">${b.phone || '—'}</td>
+        <td>${formatDate(b.checkin)}</td>
+        <td>${formatDate(b.checkout)}</td>
+        <td style="text-align:center">${nights(b.checkin, b.checkout)}</td>
+        <td style="text-align:center">${b.guests || '—'}</td>
+        <td style="font-weight:500">${formatMoney(b.amount)}</td>
+        <td><span class="badge ${paymentClasses[b.payment]}">${paymentLabels[b.payment]}</span></td>
+        <td><span class="source-badge ${sourceClasses[b.source]}">${sourceLabels[b.source]}</span></td>
+        <td style="color:#9ca3af;font-size:.72rem">${b.notes || ''}</td>
+        <td><button class="btn-del" onclick="deleteBooking(${b.id})">✕</button></td>
+      </tr>
+    `).join('');
+  }
+
+  // Статистика
+  var t = today();
+  var occupied = 0;
+  for (var i = 1; i <= 8; i++) { if (isOccupied(i)) occupied++; }
+  var revenue = bookings.filter(b => b.payment === 'paid').reduce((s,b) => s + (Number(b.amount)||0), 0);
+
+  document.getElementById('stat-total').textContent = bookings.length;
+  document.getElementById('stat-occupied').textContent = occupied + ' / 8';
+  document.getElementById('stat-revenue').textContent = revenue.toLocaleString('ru-RU') + ' ₽';
+  document.getElementById('stat-instagram').textContent = bookings.filter(b => b.source === 'instagram').length;
+  document.getElementById('stat-yandex').textContent = bookings.filter(b => b.source === 'yandex').length;
+
+  // Дата
+  document.getElementById('today-date').textContent = new Date().toLocaleDateString('ru-RU', {day:'numeric',month:'long',year:'numeric'});
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  var btn = document.querySelector('[data-filter="' + f + '"]');
+  if (btn) btn.classList.add('active');
+  render();
+}
+
+function openModal(villaNum) {
+  document.getElementById('modal').classList.add('open');
+  if (villaNum) {
+    document.getElementById('f-villa').value = villaNum;
+    document.getElementById('modal-villa-name').textContent = 'Домик №' + villaNum;
+  }
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('modal-villa-name').textContent = '';
+  ['f-name','f-phone','f-checkin','f-checkout','f-guests','f-amount','f-notes'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('f-payment').value = 'unpaid';
+  document.getElementById('f-source').value = 'instagram';
+  document.getElementById('f-villa').value = '1';
+}
+
+function addBooking() {
+  var name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('Укажите имя гостя'); return; }
+
+  var booking = {
+    id: Date.now(),
+    villa: document.getElementById('f-villa').value,
+    name,
+    phone: document.getElementById('f-phone').value.trim(),
+    checkin: document.getElementById('f-checkin').value,
+    checkout: document.getElementById('f-checkout').value,
+    guests: document.getElementById('f-guests').value,
+    amount: document.getElementById('f-amount').value,
+    payment: document.getElementById('f-payment').value,
+    source: document.getElementById('f-source').value,
+    notes: document.getElementById('f-notes').value.trim()
+  };
+
+  bookings.unshift(booking);
+  localStorage.setItem('baliya_bookings', JSON.stringify(bookings));
+  closeModal();
+  render();
+}
+
+function deleteBooking(id) {
+  if (!confirm('Удалить бронь?')) return;
+  bookings = bookings.filter(b => b.id !== id);
+  localStorage.setItem('baliya_bookings', JSON.stringify(bookings));
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
