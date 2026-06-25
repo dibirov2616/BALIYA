@@ -123,12 +123,12 @@
 
 
 <!-- ЧАСТИЦЫ -->
-<canvas id="particles" style="position:fixed;inset:0;z-index:5;pointer-events:none;opacity:.7"></canvas>
+<canvas id="particles" style="position:fixed;inset:0;z-index:5;pointer-events:none"></canvas>
 <script>
 (function(){
   var canvas = document.getElementById('particles');
   var ctx = canvas.getContext('2d');
-  var particles = [];
+  var drops = [];
   var W, H;
 
   function resize() {
@@ -138,41 +138,58 @@
   resize();
   window.addEventListener('resize', resize);
 
-  function random(min, max) { return Math.random() * (max - min) + min; }
+  function rnd(a,b){ return Math.random()*(b-a)+a; }
 
-  function createParticle() {
-    return {
-      x: random(0, W),
-      y: random(0, H),
-      r: random(2, 5),
-      dx: random(-0.5, 0.5),
-      dy: random(-1.2, -0.4),
-      opacity: random(0.5, 1),
-      fade: random(0.004, 0.009),
-      growing: false
-    };
+  // Источники брызг — несколько точек снизу экрана
+  function spawnSplash(ox, oy) {
+    var count = Math.floor(rnd(6,14));
+    for(var i=0;i<count;i++){
+      var angle = rnd(Math.PI*1.1, Math.PI*1.9); // вверх-в стороны
+      var speed = rnd(2, 7);
+      drops.push({
+        x: ox + rnd(-10,10),
+        y: oy,
+        vx: Math.cos(angle)*speed,
+        vy: Math.sin(angle)*speed,
+        r: rnd(0.8, 2.2),
+        opacity: rnd(0.6, 1),
+        gravity: rnd(0.08, 0.18),
+        life: 1
+      });
+    }
   }
 
-  for (var i = 0; i < 90; i++) particles.push(createParticle());
+  // Периодически создаём брызги в разных местах
+  function randomSplash(){
+    var x = rnd(0, W);
+    var y = rnd(H*0.5, H+20);
+    spawnSplash(x, y);
+    setTimeout(randomSplash, rnd(300, 900));
+  }
+  randomSplash();
 
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    particles.forEach(function(p, i) {
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(var i=drops.length-1;i>=0;i--){
+      var d = drops[i];
+      // рисуем каплю — вытянутую линию
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(147,210,255,' + p.opacity + ')';
-      ctx.fill();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - d.vx*1.5, d.y - d.vy*1.5);
+      ctx.strokeStyle = 'rgba(180,225,255,'+d.opacity+')';
+      ctx.lineWidth = d.r;
+      ctx.lineCap = 'round';
+      ctx.stroke();
 
-      p.x += p.dx;
-      p.y += p.dy;
-      p.opacity -= p.fade;
+      d.x += d.vx;
+      d.y += d.vy;
+      d.vy += d.gravity;
+      d.vx *= 0.98;
+      d.life -= 0.025;
+      d.opacity = d.life * 0.85;
 
-      if (p.opacity <= 0 || p.y < -10) {
-        particles[i] = createParticle();
-        particles[i].y = H + 5;
-        particles[i].opacity = random(0.1, 0.4);
-      }
-    });
+      if(d.life <= 0 || d.y > H+20) drops.splice(i,1);
+    }
     requestAnimationFrame(draw);
   }
   draw();
