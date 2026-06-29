@@ -172,6 +172,26 @@
 
 
 
+<!-- ═══════════════════════════════════════ LOUNGE BRIDGE ═══ -->
+<section id="lounge-bridge" style="position:relative;height:85vh;overflow:hidden;">
+  <div id="lounge-img" style="position:absolute;inset:-20% 0;background:url('images/photo-13.jpg') center 40%/cover no-repeat;will-change:transform;"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,#1C1A18 0%,rgba(28,26,24,.15) 25%,rgba(28,26,24,.15) 65%,#1C1A18 100%);z-index:1;"></div>
+</section>
+<script>
+(function(){
+  var el=document.getElementById('lounge-img');
+  var sec=document.getElementById('lounge-bridge');
+  if(!el||!sec)return;
+  function upd(){
+    var r=sec.getBoundingClientRect();
+    var p=(-r.top)/(r.height+window.innerHeight);
+    el.style.transform='translateY('+(p*25)+'%)';
+  }
+  window.addEventListener('scroll',upd,{passive:true});
+  upd();
+})();
+</script>
+
 <!-- ═══════════════════════════════════════ ABOUT / BENTO ═══ -->
 <section id="about" style="padding:88px 20px;background:#1C1A18;">
   <div style="max-width:1240px;margin:0 auto;">
