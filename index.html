@@ -172,30 +172,6 @@
 
 
 
-<!-- ═══════════════════════════════════════ LOUNGE BRIDGE ═══ -->
-<section id="lounge-bridge" style="position:relative;height:90vh;overflow:hidden;">
-  <div id="lounge-img" style="position:absolute;inset:-15% 0;background:url('photo_bg.jpg') center center/cover no-repeat;will-change:transform;"></div>
-  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,#1C1A18 0%,rgba(28,26,24,0) 28%,rgba(28,26,24,0) 62%,#1C1A18 100%);z-index:1;"></div>
-  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 20px;z-index:2;">
-    <span style="font-size:.68rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#E8A860;margin-bottom:14px;">Лаундж-зона · Барбекю · Территория</span>
-    <h2 class="display" style="font-size:clamp(2.6rem,6vw,5.5rem);color:white;line-height:.92;text-shadow:0 4px 40px rgba(0,0,0,.8);">ОТДЫХАЙ КАК<br/>НА БАЛИ</h2>
-  </div>
-</section>
-<script>
-(function(){
-  var el = document.getElementById('lounge-img');
-  var sec = document.getElementById('lounge-bridge');
-  if(!el||!sec) return;
-  function upd(){
-    var r = sec.getBoundingClientRect();
-    var p = (-r.top) / (r.height + window.innerHeight);
-    el.style.transform = 'translateY('+( p * 20 )+'%)';
-  }
-  window.addEventListener('scroll', upd, {passive:true});
-  upd();
-})();
-</script>
-
 <!-- ═══════════════════════════════════════ ABOUT / BENTO ═══ -->
 <section id="about" style="padding:88px 20px;background:#1C1A18;">
   <div style="max-width:1240px;margin:0 auto;">
