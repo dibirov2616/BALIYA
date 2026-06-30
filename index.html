@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BALIYA — Твой остров Бали у Каспия</title>
+  <title>BALIYA — Балийские домики у Каспия</title>
   <meta name="description" content="8 домиков в балийском стиле на берегу Каспийского моря в Избербаше. Лаундж-зона, барбекю, тропические растения." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -15,8 +15,17 @@
       theme: {
         extend: {
           colors: {
-            sand: '#FAF7F2', wood: '#C4722A', 'wood-d': '#9B5018',
-            char: '#1C1A18', leaf: '#4A6B3A', muted: '#8A7860',
+            sand: '#FAF7F2',
+            wood: '#C4722A',
+            'wood-d': '#9B5018',
+            char: '#1C1A18',
+            leaf: '#4A6B3A',
+            muted: '#8A7860',
+            edge: '#E8DDD0',
+          },
+          fontFamily: {
+            serif: ['"DM Serif Display"', 'Georgia', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
           }
         }
       }
@@ -25,634 +34,662 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', system-ui, sans-serif; background: #1C1A18; color: #FAF7F2; overflow-x: hidden; margin: 0; font-weight: 400; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: #fff; color: #1C1A18; overflow-x: hidden; margin: 0; }
 
-    .display { font-family: 'DM Serif Display', Georgia, serif; font-weight: 400; letter-spacing: .02em; }
-    .serif   { font-family: 'DM Serif Display', Georgia, serif; }
+    .display { font-family: 'DM Serif Display', Georgia, serif; }
 
-    .btn-wood  { display:inline-flex;align-items:center;gap:8px;background:#C4722A;color:#fff;font-weight:600;font-size:.9rem;border-radius:10px;padding:13px 26px;text-decoration:none;transition:background .2s,transform .2s;border:none;cursor:pointer; }
-    .btn-wood:hover  { background:#9B5018;transform:translateY(-2px); }
-    .btn-ghost { display:inline-flex;align-items:center;gap:8px;border:1.5px solid rgba(255,255,255,.3);color:rgba(255,255,255,.85);border-radius:10px;padding:12px 26px;text-decoration:none;transition:background .2s; }
-    .btn-ghost:hover { background:rgba(255,255,255,.08); }
+    /* Navbar */
+    #navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: rgba(255,255,255,0.96); backdrop-filter: blur(12px); border-bottom: 1px solid #EDE5D8; }
+    .nav-link { font-size: .875rem; color: #6B5744; text-decoration: none; transition: color .2s; font-weight: 500; }
+    .nav-link:hover { color: #C4722A; }
 
-    .reveal { opacity:0;transform:translateY(22px);transition:opacity .65s,transform .65s; }
-    .reveal.visible { opacity:1;transform:none; }
-    .d1{transition-delay:.12s}.d2{transition-delay:.24s}.d3{transition-delay:.36s}
-
-    .bg-photo { background:url('photo_bg.jpg') center/cover no-repeat; }
-
-    @keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-9px)} }
-    @keyframes pulse  { 0%,100%{opacity:1} 50%{opacity:.35} }
-
-    /* mobile overrides */
-    @media(max-width:900px){
-      .float-card { display:none!important; }
-      .bento-grid { grid-template-columns:1fr!important; }
-      .gallery-grid { grid-template-columns:1fr 1fr!important; }
-      .gallery-grid > div:first-child { grid-row:auto!important; }
-      .review-grid { grid-template-columns:1fr!important; }
-      .contacts-grid { grid-template-columns:1fr 1fr!important; }
-      .hero-title { font-size:clamp(4rem,18vw,8rem)!important; }
+    /* Hero */
+    @media (max-width: 900px) {
+      .hero-wrap { grid-template-columns: 1fr !important; }
+      .hero-photo { min-height: 56vw; order: -1; }
+      .hero-left { padding: 32px 20px 48px !important; }
     }
-    @media(max-width:600px){
-      .contacts-grid { grid-template-columns:1fr!important; }
-      .booking-grid  { grid-template-columns:1fr!important; }
+    @media (max-width: 600px) {
+      .hero-photo { min-height: 260px; }
+      .date-row { flex-direction: column; }
+      .date-row > * { border-right: none !important; border-bottom: 1px solid #EDE5D8; }
+    }
+
+    /* Booking card */
+    .booking-card {
+      background: #fff;
+      border: 1px solid #EDE5D8;
+      border-radius: 22px;
+      box-shadow: 0 8px 48px rgba(28,26,24,.1), 0 2px 8px rgba(28,26,24,.06);
+    }
+    .field-label { font-size: .65rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8A7860; margin-bottom: 3px; }
+    .field-val { font-size: .92rem; font-weight: 500; color: #1C1A18; }
+    .field-placeholder { font-size: .85rem; color: #B8A898; }
+    .date-field { flex: 1; padding: 14px 18px; cursor: pointer; transition: background .15s; }
+    .date-field:hover { background: #FAF7F2; }
+    .date-row { display: flex; border: 1px solid #EDE5D8; border-radius: 14px; overflow: hidden; background: #fff; margin-bottom: 12px; }
+    .date-field:first-child { border-right: 1px solid #EDE5D8; }
+
+    /* Guest selector */
+    .guest-field { width: 100%; padding: 14px 18px; border: 1px solid #EDE5D8; border-radius: 14px; background: #fff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: border-color .2s; margin-bottom: 16px; }
+    .guest-field:hover { border-color: #C4722A; }
+
+    /* CTA button */
+    .btn-book {
+      width: 100%; padding: 16px; background: #C4722A; color: #fff; font-weight: 700;
+      font-size: 1rem; border-radius: 13px; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: background .2s, transform .15s; text-decoration: none;
+    }
+    .btn-book:hover { background: #9B5018; transform: translateY(-1px); }
+
+    /* Pills */
+    .pill { display: inline-flex; align-items: center; gap: 6px; background: #FAF7F2; border: 1px solid #EDE5D8; border-radius: 999px; padding: 5px 14px; font-size: .78rem; color: #6B5744; font-weight: 500; }
+
+    /* Reveal */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .6s, transform .6s; }
+    .reveal.visible { opacity: 1; transform: none; }
+    .d1 { transition-delay: .1s; } .d2 { transition-delay: .2s; } .d3 { transition-delay: .3s; }
+
+    /* Section styles */
+    .section-eyebrow { font-size: .7rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #C4722A; }
+    .section-title { font-family: 'DM Serif Display', Georgia, serif; font-size: clamp(2.4rem, 5vw, 3.8rem); line-height: 1.05; color: #1C1A18; margin-top: 8px; }
+
+    /* Cards */
+    .feature-card {
+      background: #fff; border: 1px solid #EDE5D8; border-radius: 20px; padding: 28px 26px;
+      transition: box-shadow .25s, transform .25s, border-color .25s;
+    }
+    .feature-card:hover { box-shadow: 0 12px 40px rgba(196,114,42,.12); transform: translateY(-3px); border-color: #C4722A; }
+
+    /* Review card */
+    .review-card { background: #FAF7F2; border: 1px solid #EDE5D8; border-radius: 20px; padding: 28px 26px; }
+
+    /* Gallery */
+    .gallery-img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .4s; }
+    .gallery-cell { overflow: hidden; border-radius: 16px; cursor: zoom-in; }
+    .gallery-cell:hover .gallery-img { transform: scale(1.04); }
+
+    /* Lightbox */
+    #lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 9999; align-items: center; justify-content: center; cursor: zoom-out; }
+    .lb-arrow { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.15); border: none; color: white; width: 48px; height: 48px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background .2s; }
+    .lb-arrow:hover { background: rgba(255,255,255,.25); }
+
+    /* Footer */
+    footer { background: #1C1A18; }
+    .footer-link { font-size: .85rem; color: rgba(255,255,255,.4); text-decoration: none; transition: color .2s; }
+    .footer-link:hover { color: #C4722A; }
+
+    /* Chat */
+    #chat-window { position: absolute; bottom: 72px; right: 0; width: 340px; background: #fff; border-radius: 18px; box-shadow: 0 12px 48px rgba(0,0,0,.15); border: 1px solid #EDE5D8; display: none; flex-direction: column; overflow: hidden; max-height: 520px; }
+    #chat-window.open { display: flex; }
+    .msg-bot { background: #FAF7F2; color: #2c1a08; border-radius: 12px 12px 12px 3px; padding: .65rem 1rem; font-size: .82rem; max-width: 88%; line-height: 1.6; border: 1px solid #EDE5D8; }
+    .msg-user { background: #C4722A; color: #fff; border-radius: 12px 12px 3px 12px; padding: .65rem 1rem; font-size: .82rem; max-width: 88%; align-self: flex-end; line-height: 1.6; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .gallery-img, .feature-card, .btn-book { transition: none !important; }
     }
   </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════ NAVBAR ═══ -->
-<nav id="navbar" style="position:fixed;top:0;left:0;right:0;z-index:50;background:rgba(28,26,24,.9);backdrop-filter:blur(18px);border-bottom:1px solid rgba(255,255,255,.07);">
-  <div style="max-width:1240px;margin:0 auto;padding:0 24px;height:68px;display:flex;align-items:center;justify-content:space-between;gap:20px;">
+<!-- ══════════════════════ NAVBAR ══════════════════════ -->
+<nav id="navbar">
+  <div style="max-width:1280px;margin:0 auto;padding:0 24px;height:70px;display:flex;align-items:center;justify-content:space-between;gap:20px;">
 
-    <!-- Logo -->
     <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;">
-      <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+      <svg width="34" height="34" viewBox="0 0 40 40" fill="none">
         <circle cx="20" cy="20" r="19" stroke="#C4722A" stroke-width="1.4" fill="rgba(196,114,42,.08)"/>
         <path d="M8 25 Q20 9 32 25 Z" fill="rgba(196,114,42,.18)" stroke="#C4722A" stroke-width="1.6"/>
         <path d="M10 25 Q20 11 30 25" fill="none" stroke="rgba(196,114,42,.45)" stroke-width=".8"/>
         <rect x="13" y="25" width="14" height="9" rx="1" fill="#C4722A" opacity=".75"/>
-        <rect x="17.5" y="27" width="5" height="7" rx=".8" fill="#1C1A18" opacity=".65"/>
+        <rect x="17.5" y="27" width="5" height="7" rx=".8" fill="#FAF7F2" opacity=".8"/>
       </svg>
-      <span class="serif" style="font-size:1.05rem;font-weight:600;letter-spacing:.22em;color:white;">BALIYA</span>
+      <span style="font-family:'DM Serif Display',Georgia,serif;font-size:1.1rem;letter-spacing:.16em;color:#1C1A18;font-weight:600;">BALIYA</span>
     </a>
 
-    <!-- Links -->
-    <div class="hidden md:flex items-center gap-6">
-      <a href="#about"        class="nav-link">О комплексе</a>
+    <div class="hidden md:flex items-center gap-7">
+      <a href="#about" class="nav-link">О комплексе</a>
       <a href="cottages.html" class="nav-link">Домики</a>
-      <a href="#gallery"      class="nav-link">Фото</a>
-      <a href="#reviews"      class="nav-link">Отзывы</a>
+      <a href="#gallery" class="nav-link">Фото</a>
+      <a href="#reviews" class="nav-link">Отзывы</a>
       <a href="contacts.html" class="nav-link">Контакты</a>
     </div>
 
-    <!-- Right -->
     <div style="display:flex;align-items:center;gap:14px;">
-      <a href="https://wa.me/79289786078" target="_blank" rel="noopener" title="WhatsApp" class="social-icon">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+      <a href="https://wa.me/79289786078" target="_blank" rel="noopener" title="WhatsApp" style="color:#8A7860;transition:color .2s;display:flex;" onmouseover="this.style.color='#C4722A'" onmouseout="this.style.color='#8A7860'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
       </a>
-      <a href="https://instagram.com/baliya.caspi" target="_blank" rel="noopener" title="Instagram" class="social-icon">
-        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+      <a href="https://instagram.com/baliya.caspi" target="_blank" rel="noopener" title="Instagram" style="color:#8A7860;transition:color .2s;display:flex;" onmouseover="this.style.color='#C4722A'" onmouseout="this.style.color='#8A7860'">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg>
       </a>
-      <a href="https://wa.me/79289786078?text=Здравствуйте!%20Хочу%20забронировать%20домик%20в%20BALIYA." target="_blank" rel="noopener" class="btn-wood hidden sm:inline-flex" style="padding:10px 20px;font-size:.82rem;">
-        Оставить заявку
+      <a href="https://wa.me/79289786078?text=Здравствуйте!%20Хочу%20забронировать%20домик%20в%20BALIYA." target="_blank" rel="noopener" class="hidden sm:inline-flex" style="background:#C4722A;color:#fff;font-weight:600;font-size:.82rem;border-radius:10px;padding:10px 20px;text-decoration:none;transition:background .2s;" onmouseover="this.style.background='#9B5018'" onmouseout="this.style.background='#C4722A'">
+        Забронировать
       </a>
-      <button id="burger" class="md:hidden" style="background:none;border:none;color:rgba(255,255,255,.7);cursor:pointer;padding:4px;">
+      <button id="burger" class="md:hidden" style="background:none;border:none;color:#6B5744;cursor:pointer;padding:4px;" aria-label="Меню">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </div>
   </div>
-  <!-- Mobile menu -->
-  <div id="mobile-nav" style="display:none;flex-direction:column;gap:18px;padding:20px 24px 24px;border-top:1px solid rgba(255,255,255,.07);">
-    <a href="#about"        onclick="closeMob()" style="font-size:.95rem;color:rgba(255,255,255,.7);text-decoration:none;">О комплексе</a>
-    <a href="cottages.html" onclick="closeMob()" style="font-size:.95rem;color:rgba(255,255,255,.7);text-decoration:none;">Домики</a>
-    <a href="#gallery"      onclick="closeMob()" style="font-size:.95rem;color:rgba(255,255,255,.7);text-decoration:none;">Фото</a>
-    <a href="#reviews"      onclick="closeMob()" style="font-size:.95rem;color:rgba(255,255,255,.7);text-decoration:none;">Отзывы</a>
-    <a href="contacts.html" onclick="closeMob()" style="font-size:.95rem;color:rgba(255,255,255,.7);text-decoration:none;">Контакты</a>
-    <a href="https://wa.me/79289786078?text=Здравствуйте!%20Хочу%20забронировать%20домик%20в%20BALIYA." target="_blank" class="btn-wood" style="justify-content:center;">Оставить заявку</a>
+  <div id="mobile-nav" style="display:none;flex-direction:column;gap:16px;padding:18px 24px 22px;border-top:1px solid #EDE5D8;">
+    <a href="#about"        onclick="closeMob()" class="nav-link">О комплексе</a>
+    <a href="cottages.html" onclick="closeMob()" class="nav-link">Домики</a>
+    <a href="#gallery"      onclick="closeMob()" class="nav-link">Фото</a>
+    <a href="#reviews"      onclick="closeMob()" class="nav-link">Отзывы</a>
+    <a href="contacts.html" onclick="closeMob()" class="nav-link">Контакты</a>
+    <a href="https://wa.me/79289786078?text=Здравствуйте!%20Хочу%20забронировать%20домик%20в%20BALIYA." target="_blank" style="background:#C4722A;color:#fff;font-weight:600;font-size:.9rem;border-radius:10px;padding:13px 20px;text-decoration:none;text-align:center;">Забронировать</a>
   </div>
 </nav>
 
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<section style="background:#fff;padding-top:70px;position:relative;padding-bottom:56px;">
+
+  <!-- Фото: в потоке, с отступом слева 27%, справа 5%, округлые углы со всех сторон -->
+  <div style="margin:32px 4% 0 25%;border-radius:18px;overflow:hidden;height:490px;">
+    <img src="photo_bg.jpg" alt="BALIYA — балийские домики на Каспии" style="width:100%;height:100%;object-fit:cover;object-position:center 35%;display:block;transform:scale(0.82);transform-origin:center center;" loading="eager"/>
+  </div>
+
+  <!-- Карточка: абсолютно поверх фото, слева, перекрывает левый край фото -->
+  <div style="position:absolute;top:102px;left:5%;width:390px;background:#fff;border-radius:18px;box-shadow:0 6px 40px rgba(28,26,24,.13);padding:28px 26px;z-index:2;">
+    <h1 class="display" style="font-size:1.95rem;line-height:1.15;color:#1C1A18;margin:0 0 8px;">BALIYA: аренда домиков</h1>
+    <p style="font-size:.85rem;color:#8A7860;line-height:1.65;margin:0 0 20px;">Ищите и бронируйте уникальные домики в балийском стиле на Каспии</p>
+
+    <div class="date-row" style="margin-bottom:10px;">
+      <div class="date-field" onclick="setDate('in')">
+        <div class="field-label">Заезд</div>
+        <div id="date-in-display" class="field-placeholder">Когда?</div>
+      </div>
+      <div class="date-field" onclick="setDate('out')">
+        <div class="field-label">Выезд</div>
+        <div id="date-out-display" class="field-placeholder">Когда?</div>
+      </div>
+    </div>
+    <div class="guest-field" onclick="cycleGuests()" style="margin-bottom:14px;">
+      <div>
+        <div class="field-label">Гостей</div>
+        <div id="guests-display" class="field-val">2 гостя</div>
+      </div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A7860" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </div>
+    <a id="book-btn" href="https://wa.me/79289786078?text=Здравствуйте!%20Хочу%20забронировать%20домик%20в%20BALIYA." target="_blank" rel="noopener" class="btn-book">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Найти домик
+    </a>
+  </div>
+
+</section>
+
+
+<!-- ══════════════════════ STATS BAR ══════════════════════ -->
+<section style="background:#FAF7F2;border-top:1px solid #EDE5D8;border-bottom:1px solid #EDE5D8;padding:28px 20px;">
+  <div style="max-width:1280px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0;text-align:center;" class="stats-grid">
+    <div style="padding:0 20px;border-right:1px solid #EDE5D8;">
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:2rem;color:#C4722A;line-height:1;">8</div>
+      <div style="font-size:.8rem;color:#8A7860;margin-top:3px;font-weight:500;">уникальных домиков</div>
+    </div>
+    <div style="padding:0 20px;border-right:1px solid #EDE5D8;">
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:2rem;color:#C4722A;line-height:1;">100м</div>
+      <div style="font-size:.8rem;color:#8A7860;margin-top:3px;font-weight:500;">до берега Каспия</div>
+    </div>
+    <div style="padding:0 20px;border-right:1px solid #EDE5D8;">
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:2rem;color:#C4722A;line-height:1;">6</div>
+      <div style="font-size:.8rem;color:#8A7860;margin-top:3px;font-weight:500;">гостей в домике</div>
+    </div>
+    <div style="padding:0 20px;">
+      <div style="font-family:'DM Serif Display',Georgia,serif;font-size:2rem;color:#C4722A;line-height:1;">5.0</div>
+      <div style="font-size:.8rem;color:#8A7860;margin-top:3px;font-weight:500;">рейтинг гостей</div>
+    </div>
+  </div>
+</section>
 <style>
-  .nav-link { font-size:.85rem;color:rgba(255,255,255,.55);text-decoration:none;transition:color .2s; }
-  .nav-link:hover { color:#C4722A; }
-  .social-icon { color:rgba(255,255,255,.55);transition:color .2s,transform .2s;display:flex;align-items:center; }
-  .social-icon:hover { color:white;transform:scale(1.25); }
+@media(max-width:640px){
+  .stats-grid{grid-template-columns:1fr 1fr!important;}
+  .stats-grid>div{border-right:none!important;border-bottom:1px solid #EDE5D8;padding:16px!important;}
+  .stats-grid>div:last-child,.stats-grid>div:nth-child(3){border-bottom:none!important;}
+  .stats-grid>div:nth-child(2){border-bottom:1px solid #EDE5D8!important;}
+}
 </style>
 
 
-<!-- ЧАСТИЦЫ -->
+<!-- ══════════════════════ ABOUT / BENTO ══════════════════════ -->
+<section id="about" style="padding:96px 20px;background:#fff;">
+  <div style="max-width:1280px;margin:0 auto;">
 
-<!-- ═══════════════════════════════════════ HERO ═══ -->
-<section class="bg-photo" style="min-height:100vh;position:relative;display:flex;align-items:center;justify-content:center;padding-top:68px;">
-  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(14,10,6,.55) 0%,rgba(14,10,6,.4) 60%,rgba(28,26,24,1) 100%);"></div>
-
-  <!-- Left card -->
-  <div class="float-card reveal" style="position:absolute;left:4%;top:50%;transform:translateY(-50%);width:220px;background:rgba(28,26,24,.78);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.13);border-radius:18px;padding:22px 20px;z-index:10;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-      <span style="width:8px;height:8px;border-radius:50%;background:#C4722A;"></span>
-      <span style="font-size:.65rem;font-weight:600;letter-spacing:.12em;color:#C4722A;text-transform:uppercase;">8 домиков</span>
-    </div>
-    <p style="font-size:.82rem;color:rgba(255,255,255,.75);line-height:1.6;">Уникальные двухэтажные домики в балийском стиле. От 2 до 6 гостей.</p>
-  </div>
-
-  <!-- Right card -->
-  <div class="float-card reveal d1" style="position:absolute;right:4%;top:50%;transform:translateY(-50%);width:210px;background:rgba(28,26,24,.78);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.13);border-radius:18px;padding:22px 20px;z-index:10;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-      <span style="width:8px;height:8px;border-radius:50%;background:#4A6B3A;"></span>
-      <span style="font-size:.65rem;font-weight:600;letter-spacing:.12em;color:#4A6B3A;text-transform:uppercase;">100м до берега</span>
-    </div>
-    <p style="font-size:.82rem;color:rgba(255,255,255,.75);line-height:1.6;">Закаты над Каспийским морем прямо с территории.</p>
-  </div>
-
-  <!-- Center -->
-  <div style="position:relative;z-index:10;text-align:center;padding:0 20px;">
-    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:7px 18px;margin-bottom:28px;">
-      <span style="width:7px;height:7px;border-radius:50%;background:#C4722A;animation:pulse 2s infinite;"></span>
-      <span style="font-size:.72rem;color:rgba(255,255,255,.65);letter-spacing:.13em;text-transform:uppercase;">Избербаш · Дагестан · Каспий</span>
-    </div>
-
-    <h1 class="display hero-title" style="font-size:clamp(5rem,16vw,13rem);color:white;line-height:.88;margin-bottom:16px;">BALIYA</h1>
-    <p style="font-size:clamp(.95rem,2vw,1.2rem);color:rgba(255,255,255,.6);letter-spacing:.08em;margin-bottom:40px;">Твой остров Бали у Каспия</p>
-
-    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-      <a href="https://wa.me/79289786078?text=Здравствуйте!%20Хочу%20забронировать%20домик%20в%20BALIYA." target="_blank" rel="noopener" class="btn-wood" style="padding:15px 32px;font-size:.95rem;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-        Забронировать
-      </a>
-      <a href="cottages.html" class="btn-ghost" style="padding:14px 32px;font-size:.95rem;">Смотреть домики</a>
-    </div>
-  </div>
-
-  <div style="position:absolute;bottom:30px;left:50%;animation:bounce 1.6s infinite;opacity:.45;">
-    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.4"><path d="M6 9l6 6 6-6"/></svg>
-  </div>
-</section>
-
-
-
-<!-- ═══════════════════════════════════════ LOUNGE BRIDGE ═══ -->
-<section id="lounge-bridge" style="position:relative;height:85vh;overflow:hidden;">
-  <div id="lounge-img" style="position:absolute;inset:-20% 0;background:url('images/photo-13.jpg') center 40%/cover no-repeat;will-change:transform;"></div>
-  <div style="position:absolute;inset:0;background:linear-gradient(to bottom,#1C1A18 0%,rgba(28,26,24,.15) 25%,rgba(28,26,24,.15) 65%,#1C1A18 100%);z-index:1;"></div>
-</section>
-<script>
-(function(){
-  var el=document.getElementById('lounge-img');
-  var sec=document.getElementById('lounge-bridge');
-  if(!el||!sec)return;
-  function upd(){
-    var r=sec.getBoundingClientRect();
-    var p=(-r.top)/(r.height+window.innerHeight);
-    el.style.transform='translateY('+(p*25)+'%)';
-  }
-  window.addEventListener('scroll',upd,{passive:true});
-  upd();
-})();
-</script>
-
-<!-- ═══════════════════════════════════════ ABOUT / BENTO ═══ -->
-<section id="about" style="padding:88px 20px;background:#1C1A18;">
-  <div style="max-width:1240px;margin:0 auto;">
-
-    <div class="reveal" style="text-align:center;margin-bottom:56px;">
-      <span style="font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#C4722A;">О комплексе</span>
-      <h2 class="display" style="font-size:clamp(3rem,7vw,6.5rem);color:white;line-height:.9;margin-top:10px;">КУСОЧЕК БАЛИ<br/>У КАСПИЯ</h2>
+    <div class="reveal" style="margin-bottom:52px;">
+      <span class="section-eyebrow">О комплексе</span>
+      <h2 class="section-title">Кусочек Бали<br/>у Каспийского моря</h2>
+      <p style="font-size:1rem;color:#8A7860;line-height:1.7;margin-top:14px;max-width:520px;">Восемь двухэтажных домиков с арочными крышами, тропическими растениями и атмосферой настоящего балийского курорта — в 100 метрах от берега.</p>
     </div>
 
     <!-- Bento grid -->
-    <div class="bento-grid" style="display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:14px;">
+    <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr;grid-template-rows:auto auto;gap:14px;" class="bento-about">
 
-      <!-- Card 1: dark wood -->
-      <div class="reveal" style="background:linear-gradient(155deg,#2A1608,#502810);border-radius:22px;padding:32px 28px;display:flex;flex-direction:column;justify-content:space-between;min-height:290px;">
-        <div>
-          <div style="width:46px;height:46px;background:rgba(196,114,42,.2);border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <!-- Big photo card -->
+      <div class="reveal" style="grid-row:span 2;border-radius:22px;overflow:hidden;position:relative;min-height:480px;background:#EDE5D8;">
+        <img src="images/photo-03.jpg" alt="Домики BALIYA" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"/>
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(28,26,24,.7) 0%,transparent 55%);"></div>
+        <div style="position:absolute;bottom:28px;left:28px;right:28px;">
+          <div style="font-size:.65rem;font-weight:700;letter-spacing:.13em;color:#C4722A;text-transform:uppercase;margin-bottom:7px;">Балийский стиль</div>
+          <h3 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.7rem;color:#fff;line-height:1.15;margin-bottom:7px;">Восемь домиков<br/>с арочными крышами</h3>
+          <a href="cottages.html" style="font-size:.82rem;color:rgba(255,255,255,.75);text-decoration:none;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.color='#C4722A'" onmouseout="this.style.color='rgba(255,255,255,.75)'">
+            Смотреть домики <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Card: sea -->
+      <div class="feature-card reveal d1">
+        <div style="width:48px;height:48px;background:#FAF7F2;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;border:1px solid #EDE5D8;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="1.8"><path d="M2 12s3-4 10-4 10 4 10 4-3 4-10 4-10-4-10-4z"/><path d="M2 12c2-1.5 5-2.5 10-2.5S20 10.5 22 12"/></svg>
+        </div>
+        <h3 style="font-size:1.05rem;font-weight:600;color:#1C1A18;margin-bottom:8px;">100 метров до Каспия</h3>
+        <p style="font-size:.875rem;color:#8A7860;line-height:1.7;">Закаты над Каспийским морем прямо с территории комплекса.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;">
+          <span style="font-size:.72rem;background:#FAF7F2;border:1px solid #EDE5D8;color:#6B5744;padding:4px 11px;border-radius:7px;font-weight:500;">Пляж рядом</span>
+          <span style="font-size:.72rem;background:#FAF7F2;border:1px solid #EDE5D8;color:#6B5744;padding:4px 11px;border-radius:7px;font-weight:500;">Закаты</span>
+        </div>
+      </div>
+
+      <!-- Card: lounge -->
+      <div class="feature-card reveal d2">
+        <div style="width:48px;height:48px;background:#FAF7F2;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;border:1px solid #EDE5D8;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="1.8"><path d="M20 9V6a2 2 0 00-2-2H6a2 2 0 00-2 2v3"/><path d="M2 11v5a2 2 0 002 2h16a2 2 0 002-2v-5a1 1 0 00-1-1H3a1 1 0 00-1 1z"/></svg>
+        </div>
+        <h3 style="font-size:1.05rem;font-weight:600;color:#1C1A18;margin-bottom:8px;">Лаундж и барбекю</h3>
+        <p style="font-size:.875rem;color:#8A7860;line-height:1.7;">Мягкие диваны, тропические растения, мангал под открытым небом.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:16px;">
+          <span style="font-size:.72rem;background:#FAF7F2;border:1px solid #EDE5D8;color:#6B5744;padding:4px 11px;border-radius:7px;font-weight:500;">Барбекю</span>
+          <span style="font-size:.72rem;background:#FAF7F2;border:1px solid #EDE5D8;color:#6B5744;padding:4px 11px;border-radius:7px;font-weight:500;">Лаундж</span>
+        </div>
+      </div>
+
+      <!-- Card: amenities -->
+      <div class="feature-card reveal d1" style="grid-column:span 2;">
+        <div style="display:flex;align-items:center;gap:32px;flex-wrap:wrap;">
+          <div>
+            <div style="width:48px;height:48px;background:#FAF7F2;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:1px solid #EDE5D8;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="1.8"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <h3 style="font-size:1.05rem;font-weight:600;color:#1C1A18;margin-bottom:6px;">До 6 гостей</h3>
+            <p style="font-size:.875rem;color:#8A7860;max-width:200px;line-height:1.6;">Уютно для двоих и комфортно для всей компании.</p>
           </div>
-          <h3 class="serif" style="font-size:1.25rem;font-weight:600;color:white;margin-bottom:10px;">Балийские домики</h3>
-          <p style="font-size:.85rem;color:rgba(255,255,255,.58);line-height:1.7;">Восемь двухэтажных домиков с арочными крышами. Тёплое дерево, тропические растения, балкон с видом.</p>
-        </div>
-        <a href="cottages.html" style="font-size:.8rem;color:#C4722A;text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-top:20px;">
-          Все домики <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </a>
-      </div>
-
-      <!-- Card 2: center photo -->
-      <div class="reveal d1" style="border-radius:22px;min-height:290px;position:relative;overflow:hidden;background:url('images/photo-03.jpg') center/cover no-repeat;">
-        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(14,10,6,.75) 0%,rgba(14,10,6,.25) 100%);"></div>
-        <div style="position:relative;z-index:2;padding:28px;height:100%;display:flex;flex-direction:column;justify-content:flex-end;">
-          <span style="font-size:.65rem;font-weight:600;letter-spacing:.13em;color:#4A6B3A;text-transform:uppercase;margin-bottom:8px;">Каспийское море</span>
-          <h3 class="serif" style="font-size:1.6rem;font-weight:700;color:white;line-height:1.15;margin-bottom:8px;">В 100 метрах<br/>до берега</h3>
-          <p style="font-size:.82rem;color:rgba(255,255,255,.6);">Избербаш, Дагестан. Закаты прямо с территории.</p>
-        </div>
-      </div>
-
-      <!-- Card 3: light sand -->
-      <div class="reveal d2" style="background:#FAF7F2;border-radius:22px;padding:32px 28px;min-height:290px;display:flex;flex-direction:column;justify-content:space-between;">
-        <div>
-          <div style="width:46px;height:46px;background:rgba(196,114,42,.1);border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:20px;">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <div style="flex:1;min-width:180px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div style="display:flex;align-items:center;gap:8px;font-size:.83rem;color:#6B5744;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="2"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1" fill="#C4722A"/></svg>
+                Wi-Fi
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:.83rem;color:#6B5744;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                Охрана
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:.83rem;color:#6B5744;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/></svg>
+                Парковка
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:.83rem;color:#6B5744;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="2"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+                Кухня
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:.83rem;color:#6B5744;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Безопасно
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;font-size:.83rem;color:#6B5744;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                Заезд 14:00
+              </div>
+            </div>
           </div>
-          <h3 class="serif" style="font-size:1.25rem;font-weight:600;color:#1C1A18;margin-bottom:10px;">До 6 гостей</h3>
-          <p style="font-size:.85rem;color:#8A7860;line-height:1.7;">Вместительные домики для семьи или компании. Уютно для двоих и комфортно для шести.</p>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:16px;">
-          <span style="font-size:.72rem;background:rgba(196,114,42,.1);color:#C4722A;padding:4px 11px;border-radius:7px;font-weight:500;">Wi-Fi</span>
-          <span style="font-size:.72rem;background:rgba(196,114,42,.1);color:#C4722A;padding:4px 11px;border-radius:7px;font-weight:500;">Парковка</span>
-          <span style="font-size:.72rem;background:rgba(196,114,42,.1);color:#C4722A;padding:4px 11px;border-radius:7px;font-weight:500;">Охрана</span>
-        </div>
-      </div>
-
-      <!-- Row 2 -->
-      <!-- Card 4 -->
-      <div class="reveal" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:26px 24px;display:flex;align-items:flex-start;gap:16px;">
-        <div style="width:46px;height:46px;flex-shrink:0;background:rgba(74,107,58,.18);border-radius:13px;display:flex;align-items:center;justify-content:center;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#4A6B3A" stroke-width="1.8"><path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/><path d="M2 11v5a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-5a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1z"/></svg>
-        </div>
-        <div>
-          <h4 class="serif" style="font-size:1.05rem;font-weight:600;color:white;margin-bottom:7px;">Лаундж-зона</h4>
-          <p style="font-size:.82rem;color:rgba(255,255,255,.48);line-height:1.6;">Мягкие диваны, тропические растения, уличные фонари для вечернего отдыха</p>
-        </div>
-      </div>
-
-      <!-- Card 5: big display -->
-      <div class="reveal d1" style="background:linear-gradient(145deg,#261405,#4A2410);border-radius:22px;padding:28px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;">
-        <h3 class="display" style="font-size:clamp(2.5rem,5vw,3.8rem);color:#C4722A;line-height:1;">БАРБЕКЮ</h3>
-        <p style="font-size:.85rem;color:rgba(255,255,255,.55);line-height:1.6;max-width:260px;">Мангал и стол на свежем воздухе. Вечерние посиделки с видом на море.</p>
-      </div>
-
-      <!-- Card 6: instagram -->
-      <div class="reveal d2" style="background:#FAF7F2;border-radius:22px;padding:26px 24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px;">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="1.7"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-        <div>
-          <div class="serif" style="font-size:1.7rem;font-weight:700;color:#C4722A;line-height:1;">74к+</div>
-          <div style="font-size:.78rem;color:#8A7860;margin-top:2px;">подписчиков</div>
-        </div>
-        <a href="https://instagram.com/baliya.caspi" target="_blank" rel="noopener" style="font-size:.8rem;color:#C4722A;text-decoration:none;font-weight:500;">@baliya.caspi</a>
       </div>
 
     </div>
   </div>
 </section>
+<style>
+@media(max-width:900px){.bento-about{grid-template-columns:1fr 1fr!important;}}
+@media(max-width:600px){.bento-about{grid-template-columns:1fr!important;} .bento-about>div:first-child{grid-row:auto!important;min-height:280px!important;} .bento-about>div:nth-child(4){grid-column:auto!important;}}
+</style>
 
 
-<!-- ═══════════════════════════════════════ LOUNGE FULL SECTION ═══ -->
-<section style="background:url('images/photo-13.jpg') center center/cover no-repeat;padding:110px 20px;position:relative;">
-  <div style="position:absolute;inset:0;background:rgba(12,8,4,.72);"></div>
-  <div style="max-width:1240px;margin:0 auto;position:relative;z-index:2;">
+<!-- ══════════════════════ GALLERY ══════════════════════ -->
+<section id="gallery" style="padding:96px 20px;background:#FAF7F2;">
+  <div style="max-width:1280px;margin:0 auto;">
 
-    <div class="reveal" style="text-align:center;margin-bottom:52px;">
-      <h2 class="display" style="font-size:clamp(3.5rem,10vw,9rem);color:white;line-height:.88;">ЛАУНДЖ<br/>И БАРБЕКЮ</h2>
-    </div>
-
-    <div class="reveal" style="max-width:780px;margin:0 auto;background:rgba(28,26,24,.78);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.1);border-radius:24px;padding:44px 48px;">
-      <p style="font-size:1rem;line-height:1.85;color:rgba(255,255,255,.78);margin-bottom:18px;">
-        <span style="color:#C4722A;font-weight:600;">Лаундж-зона:</span> мягкие диваны и кресла, тропические растения, уличные фонари. Идеально для вечернего отдыха всей компанией.
-      </p>
-      <p style="font-size:1rem;line-height:1.85;color:rgba(255,255,255,.78);">
-        <span style="color:#C4722A;font-weight:600;">Барбекю-зона:</span> мангал, столы и скамейки на свежем воздухе. Вечерние посиделки в тропическом саду с видом на Каспий.
-      </p>
-    </div>
-
-  </div>
-</section>
-
-
-<!-- ═══════════════════════════════════════ GALLERY ═══ -->
-<section id="gallery" style="padding:88px 20px;background:#1C1A18;">
-  <div style="max-width:1240px;margin:0 auto;">
-
-    <div class="reveal" style="text-align:center;margin-bottom:52px;">
-      <span style="font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#C4722A;">Фотографии</span>
-      <h2 class="display" style="font-size:clamp(3rem,7vw,6.5rem);color:white;line-height:.9;margin-top:10px;">ПОСМОТРИТЕ ФОТО</h2>
-    </div>
-
-    <!-- Lightbox overlay -->
-    <div id="lightbox" onclick="closeLightbox()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
-      <button onclick="shiftLb(-1);event.stopPropagation()" style="position:fixed;left:20px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:none;color:white;width:48px;height:48px;border-radius:50%;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8249;</button>
-      <img id="lb-img" src="" alt="" style="max-width:92vw;max-height:90vh;border-radius:12px;object-fit:contain;pointer-events:none;" />
-      <button onclick="shiftLb(1);event.stopPropagation()" style="position:fixed;right:20px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:none;color:white;width:48px;height:48px;border-radius:50%;font-size:1.4rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">&#8250;</button>
-      <button onclick="closeLightbox()" style="position:fixed;top:20px;right:20px;background:rgba(255,255,255,.12);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;">&#10005;</button>
-    </div>
-
-    <div class="gallery-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
-      <div onclick="openLightbox(0)"  style="grid-column:span 2;grid-row:span 2;border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:1/1;"><img src="images/photo-00.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(1)"  style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-01.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(2)"  style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-02.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(3)"  style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-03.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(4)"  style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-04.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(5)"  style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-05.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(6)"  style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-06.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(7)"  style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-07.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(8)"  style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-08.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(9)"  style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;grid-column:span 2;"><img src="images/photo-09.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(10)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-10.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(11)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-11.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(12)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-12.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(13)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-13.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(14)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-14.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(15)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-15.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(16)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;grid-column:span 2;"><img src="images/photo-16.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(17)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-17.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(18)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-18.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(19)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-19.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(20)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-20.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(21)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-21.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(22)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-22.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(23)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-23.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-      <div onclick="openLightbox(24)" style="border-radius:18px;overflow:hidden;cursor:zoom-in;aspect-ratio:4/3;"><img src="images/photo-24.jpg" alt="Балия" style="width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'"/></div>
-    </div>
-
-    <script>
-      const lbPhotos = Array.from({length:25},(_,i)=>`images/photo-${String(i).padStart(2,'0')}.jpg`);
-      let lbIdx = 0;
-      function openLightbox(i){lbIdx=i;const lb=document.getElementById('lightbox');document.getElementById('lb-img').src=lbPhotos[i];lb.style.display='flex';document.body.style.overflow='hidden';}
-      function closeLightbox(){document.getElementById('lightbox').style.display='none';document.body.style.overflow='';}
-      function shiftLb(d){lbIdx=(lbIdx+d+lbPhotos.length)%lbPhotos.length;document.getElementById('lb-img').src=lbPhotos[lbIdx];}
-      document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')shiftLb(1);if(e.key==='ArrowLeft')shiftLb(-1);if(e.key==='Escape')closeLightbox();});
-    </script>
-
-    <div class="reveal" style="text-align:center;margin-top:36px;">
-      <a href="https://instagram.com/baliya.caspi" target="_blank" rel="noopener" class="btn-ghost" style="font-size:.875rem;">
-        Больше фото в Instagram @baliya.caspi
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    <div class="reveal" style="display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:40px;">
+      <div>
+        <span class="section-eyebrow">Фотографии</span>
+        <h2 class="section-title">Посмотрите,<br/>как это выглядит</h2>
+      </div>
+      <a href="https://instagram.com/baliya.caspi" target="_blank" rel="noopener" style="font-size:.875rem;color:#C4722A;text-decoration:none;font-weight:600;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.color='#9B5018'" onmouseout="this.style.color='#C4722A'">
+        Больше в Instagram
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </a>
     </div>
+
+    <!-- Lightbox -->
+    <div id="lightbox" onclick="closeLightbox()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;align-items:center;justify-content:center;cursor:zoom-out;">
+      <button onclick="shiftLb(-1);event.stopPropagation()" class="lb-arrow" style="left:16px;" aria-label="Назад">&#8249;</button>
+      <img id="lb-img" src="" alt="" style="max-width:92vw;max-height:90vh;border-radius:14px;object-fit:contain;pointer-events:none;" />
+      <button onclick="shiftLb(1);event.stopPropagation()" class="lb-arrow" style="right:16px;" aria-label="Вперёд">&#8250;</button>
+      <button onclick="closeLightbox()" style="position:fixed;top:20px;right:20px;background:rgba(255,255,255,.12);border:none;color:white;width:40px;height:40px;border-radius:50%;font-size:1.2rem;cursor:pointer;" aria-label="Закрыть">&#10005;</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;" class="gallery-grid">
+      <div class="gallery-cell" onclick="openLightbox(0)" style="grid-column:span 2;grid-row:span 2;aspect-ratio:1/1;"><img class="gallery-img" src="images/photo-00.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(1)" style="aspect-ratio:4/3;"><img class="gallery-img" src="images/photo-01.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(2)" style="aspect-ratio:4/3;"><img class="gallery-img" src="images/photo-02.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(3)" style="aspect-ratio:4/3;"><img class="gallery-img" src="images/photo-03.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(4)" style="aspect-ratio:4/3;"><img class="gallery-img" src="images/photo-04.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(5)" style="aspect-ratio:4/3;"><img class="gallery-img" src="images/photo-05.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(6)" style="aspect-ratio:4/3;"><img class="gallery-img" src="images/photo-06.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(7)" style="aspect-ratio:4/3;"><img class="gallery-img" src="images/photo-07.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(8)" style="aspect-ratio:4/3;grid-column:span 2;"><img class="gallery-img" src="images/photo-08.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(9)" style="aspect-ratio:4/3;"><img class="gallery-img" src="images/photo-09.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(10)" style="aspect-ratio:4/3;"><img class="gallery-img" src="images/photo-10.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(11)" style="aspect-ratio:4/3;"><img class="gallery-img" src="images/photo-11.jpg" alt="BALIYA"/></div>
+      <div class="gallery-cell" onclick="openLightbox(12)" style="aspect-ratio:4/3;"><img class="gallery-img" src="images/photo-12.jpg" alt="BALIYA"/></div>
+    </div>
   </div>
+
+  <script>
+    const lbPhotos = Array.from({length:25},(_,i)=>`images/photo-${String(i).padStart(2,'0')}.jpg`);
+    let lbIdx = 0;
+    function openLightbox(i){lbIdx=i;const lb=document.getElementById('lightbox');document.getElementById('lb-img').src=lbPhotos[i];lb.style.display='flex';document.body.style.overflow='hidden';}
+    function closeLightbox(){document.getElementById('lightbox').style.display='none';document.body.style.overflow='';}
+    function shiftLb(d){lbIdx=(lbIdx+d+lbPhotos.length)%lbPhotos.length;document.getElementById('lb-img').src=lbPhotos[lbIdx];}
+    document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')shiftLb(1);if(e.key==='ArrowLeft')shiftLb(-1);if(e.key==='Escape')closeLightbox();});
+  </script>
 </section>
+<style>
+@media(max-width:700px){.gallery-grid{grid-template-columns:1fr 1fr!important;} .gallery-grid>div:first-child{grid-row:auto!important;grid-column:span 2!important;}}
+</style>
 
 
-<!-- ═══════════════════════════════════════ REVIEWS ═══ -->
-<section id="reviews" class="bg-photo" style="padding:88px 20px;position:relative;">
-  <div style="position:absolute;inset:0;background:rgba(12,8,4,.74);"></div>
-  <div style="max-width:1240px;margin:0 auto;position:relative;z-index:2;">
+<!-- ══════════════════════ REVIEWS ══════════════════════ -->
+<section id="reviews" style="padding:96px 20px;background:#fff;">
+  <div style="max-width:1280px;margin:0 auto;">
 
-    <div class="reveal" style="text-align:center;margin-bottom:8px;">
-      <span style="font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#C4722A;">Реальные отзывы наших гостей</span>
-    </div>
     <div class="reveal" style="text-align:center;margin-bottom:52px;">
-      <h2 class="display" style="font-size:clamp(2.5rem,7vw,6rem);color:transparent;line-height:.92;-webkit-text-stroke:1.5px rgba(255,255,255,.28);">МЫ ВСЕГДА ВАМ РАДЫ</h2>
+      <span class="section-eyebrow">Отзывы гостей</span>
+      <h2 class="section-title">Нам доверяют</h2>
     </div>
 
-    <div class="review-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;" class="review-grid">
 
-      <div class="reveal" style="background:#FAF7F2;border-radius:20px;padding:28px 26px;">
+      <div class="review-card reveal">
         <div style="display:flex;align-items:center;gap:13px;margin-bottom:16px;">
           <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#C4722A,#E8A860);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <span class="serif" style="font-weight:700;color:white;font-size:1rem;">А</span>
+            <span style="font-family:'DM Serif Display',Georgia,serif;font-weight:700;color:#fff;font-size:1rem;">А</span>
           </div>
           <div>
             <div style="font-weight:600;font-size:.9rem;color:#1C1A18;">Аида</div>
             <div style="font-size:.72rem;color:#8A7860;">@baliya.caspi</div>
           </div>
+          <div style="margin-left:auto;color:#C4722A;font-size:.85rem;">★★★★★</div>
         </div>
-        <p style="font-size:.875rem;color:#3D2E20;line-height:1.7;">Отдыхали всей семьёй — впечатления на 10/10! Домик уютный, чистый, всё продумано до мелочей. Территория красивая, до моря пешком. Вернёмся ещё!</p>
-        <div style="margin-top:14px;color:#C4722A;font-size:.95rem;">★★★★★</div>
+        <p style="font-size:.875rem;color:#4A3828;line-height:1.75;">Отдыхали всей семьёй — впечатления на 10/10! Домик уютный, чистый, всё продумано до мелочей. Территория красивая, до моря пешком. Вернёмся ещё!</p>
       </div>
 
-      <div class="reveal d1" style="background:#FAF7F2;border-radius:20px;padding:28px 26px;">
+      <div class="review-card reveal d1">
         <div style="display:flex;align-items:center;gap:13px;margin-bottom:16px;">
           <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#4A6B3A,#7A9B5A);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <span class="serif" style="font-weight:700;color:white;font-size:1rem;">М</span>
+            <span style="font-family:'DM Serif Display',Georgia,serif;font-weight:700;color:#fff;font-size:1rem;">М</span>
           </div>
           <div>
             <div style="font-weight:600;font-size:.9rem;color:#1C1A18;">Магомед</div>
             <div style="font-size:.72rem;color:#8A7860;">@baliya.caspi</div>
           </div>
+          <div style="margin-left:auto;color:#C4722A;font-size:.85rem;">★★★★★</div>
         </div>
-        <p style="font-size:.875rem;color:#3D2E20;line-height:1.7;">Приехали вдвоём на выходные. Атмосфера как на Бали — растения, деревянные домики, тишина. Рекомендую всем, кто хочет сбежать от города.</p>
-        <div style="margin-top:14px;color:#C4722A;font-size:.95rem;">★★★★★</div>
+        <p style="font-size:.875rem;color:#4A3828;line-height:1.75;">Приехали вдвоём на выходные. Атмосфера как на Бали — растения, деревянные домики, тишина. Рекомендую всем, кто хочет сбежать от города.</p>
       </div>
 
-      <div class="reveal d2" style="background:#FAF7F2;border-radius:20px;padding:28px 26px;">
+      <div class="review-card reveal d2">
         <div style="display:flex;align-items:center;gap:13px;margin-bottom:16px;">
           <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#1C1A18,#4A3828);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <span class="serif" style="font-weight:700;color:white;font-size:1rem;">З</span>
+            <span style="font-family:'DM Serif Display',Georgia,serif;font-weight:700;color:#fff;font-size:1rem;">З</span>
           </div>
           <div>
             <div style="font-weight:600;font-size:.9rem;color:#1C1A18;">Зарема</div>
             <div style="font-size:.72rem;color:#8A7860;">@baliya.caspi</div>
           </div>
+          <div style="margin-left:auto;color:#C4722A;font-size:.85rem;">★★★★★</div>
         </div>
-        <p style="font-size:.875rem;color:#3D2E20;line-height:1.7;">Красиво, чисто, уютно. Хозяева очень внимательные. Лаундж-зона с закатным видом — это просто мечта. Уже планируем следующий приезд!</p>
-        <div style="margin-top:14px;color:#C4722A;font-size:.95rem;">★★★★★</div>
+        <p style="font-size:.875rem;color:#4A3828;line-height:1.75;">Красиво, чисто, уютно. Хозяева очень внимательные. Лаундж-зона с закатным видом — это просто мечта. Уже планируем следующий приезд!</p>
       </div>
 
     </div>
 
     <div class="reveal" style="text-align:center;margin-top:36px;">
-      <a href="https://instagram.com/baliya.caspi" target="_blank" rel="noopener" class="btn-ghost" style="font-size:.875rem;">Оставить отзыв в Instagram</a>
+      <a href="https://instagram.com/baliya.caspi" target="_blank" rel="noopener" style="font-size:.875rem;color:#C4722A;font-weight:600;text-decoration:none;border:1.5px solid #EDE5D8;border-radius:10px;padding:12px 24px;display:inline-block;transition:border-color .2s;" onmouseover="this.style.borderColor='#C4722A'" onmouseout="this.style.borderColor='#EDE5D8'">
+        Оставить отзыв в Instagram
+      </a>
+    </div>
+  </div>
+</section>
+<style>
+@media(max-width:700px){.review-grid{grid-template-columns:1fr!important;}}
+</style>
+
+
+<!-- ══════════════════════ BOOKING CTA ══════════════════════ -->
+<section style="padding:96px 20px;background:#FAF7F2;">
+  <div style="max-width:900px;margin:0 auto;">
+    <div class="reveal" style="background:#1C1A18;border-radius:28px;padding:60px 52px;display:flex;align-items:center;justify-content:space-between;gap:32px;flex-wrap:wrap;">
+      <div>
+        <span style="font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#C4722A;">Забронировать</span>
+        <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:clamp(2rem,4vw,2.8rem);color:#fff;line-height:1.1;margin-top:8px;">Ваш домик<br/>ждёт вас</h2>
+        <p style="font-size:.9rem;color:rgba(255,255,255,.5);line-height:1.7;margin-top:10px;max-width:340px;">Посмотрите <a href="cottages.html" style="color:#C4722A;text-decoration:none;">домики</a> и напишите нам — ответим быстро и забронируем удобные даты.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:220px;">
+        <a href="https://wa.me/79289786078?text=Здравствуйте!%20Хочу%20забронировать%20домик%20в%20BALIYA." target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;background:#C4722A;color:#fff;font-weight:700;font-size:.9rem;border-radius:12px;padding:16px 24px;text-decoration:none;transition:background .2s;" onmouseover="this.style.background='#9B5018'" onmouseout="this.style.background='#C4722A'">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          Написать в WhatsApp
+        </a>
+        <a href="cottages.html" style="display:flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7);font-size:.875rem;border-radius:12px;padding:14px 24px;text-decoration:none;transition:border-color .2s,color .2s;" onmouseover="this.style.borderColor='rgba(255,255,255,.5)';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,.2)';this.style.color='rgba(255,255,255,.7)'">
+          Смотреть домики
+        </a>
+      </div>
     </div>
   </div>
 </section>
 
 
-<!-- ═══════════════════════════════════════ BOOKING ═══ -->
-<section id="booking" style="padding:88px 20px;background:#1C1A18;">
-  <div style="max-width:800px;margin:0 auto;">
+<!-- ══════════════════════ FOOTER ══════════════════════ -->
+<footer id="contacts" style="padding:56px 20px 32px;">
+  <div style="max-width:1280px;margin:0 auto;">
 
-    <div class="reveal" style="text-align:center;margin-bottom:52px;">
-      <span style="font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:#C4722A;">Напишите нам</span>
-      <h2 class="display" style="font-size:clamp(3rem,7vw,6.5rem);color:white;line-height:.9;margin-top:10px;">БРОНИРОВАНИЕ</h2>
-    </div>
-
-    <div class="reveal" style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-radius:26px;padding:48px 44px;">
-      <p style="font-size:1rem;color:rgba(255,255,255,.6);line-height:1.8;margin-bottom:32px;text-align:center;">
-        Посмотрите <a href="cottages.html" style="color:#C4722A;text-decoration:none;font-weight:600;">домики</a>, проверьте расписание занятости и напишите нам — ответим быстро и забронируем удобные даты.
-      </p>
-
-      <div class="booking-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px;">
-        <div style="background:rgba(255,255,255,.05);border-radius:14px;padding:18px 20px;">
-          <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#C4722A;margin-bottom:5px;">Заезд / Выезд</div>
-          <div style="font-size:.95rem;color:white;">14:00 / 12:00</div>
-        </div>
-        <div style="background:rgba(255,255,255,.05);border-radius:14px;padding:18px 20px;">
-          <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#C4722A;margin-bottom:5px;">Гостей в домике</div>
-          <div style="font-size:.95rem;color:white;">От 2 до 6</div>
-        </div>
-        <div style="background:rgba(255,255,255,.05);border-radius:14px;padding:18px 20px;">
-          <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#C4722A;margin-bottom:5px;">Домиков</div>
-          <div style="font-size:.95rem;color:white;">8 уникальных</div>
-        </div>
-        <div style="background:rgba(255,255,255,.05);border-radius:14px;padding:18px 20px;">
-          <div style="font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#C4722A;margin-bottom:5px;">До моря</div>
-          <div style="font-size:.95rem;color:white;">100 метров</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:48px;" class="footer-grid">
+      <!-- Brand -->
+      <div>
+        <a href="index.html" style="display:inline-flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:16px;">
+          <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="19" stroke="#C4722A" stroke-width="1.4" fill="rgba(196,114,42,.08)"/>
+            <path d="M8 25 Q20 9 32 25 Z" fill="rgba(196,114,42,.18)" stroke="#C4722A" stroke-width="1.6"/>
+            <rect x="13" y="25" width="14" height="9" rx="1" fill="#C4722A" opacity=".75"/>
+          </svg>
+          <span style="font-family:'DM Serif Display',Georgia,serif;font-size:1.05rem;letter-spacing:.16em;color:#fff;font-weight:600;">BALIYA</span>
+        </a>
+        <p style="font-size:.85rem;color:rgba(255,255,255,.38);line-height:1.7;max-width:260px;">Балийские домики у Каспийского моря. Избербаш, Дагестан.</p>
+        <div style="display:flex;gap:14px;margin-top:20px;">
+          <a href="https://wa.me/79289786078" target="_blank" rel="noopener" style="color:rgba(255,255,255,.4);transition:color .2s;" onmouseover="this.style.color='#C4722A'" onmouseout="this.style.color='rgba(255,255,255,.4)'" aria-label="WhatsApp">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+          </a>
+          <a href="https://instagram.com/baliya.caspi" target="_blank" rel="noopener" style="color:rgba(255,255,255,.4);transition:color .2s;" onmouseover="this.style.color='#C4722A'" onmouseout="this.style.color='rgba(255,255,255,.4)'" aria-label="Instagram">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".8" fill="currentColor"/></svg>
+          </a>
         </div>
       </div>
-
-      <a href="https://wa.me/79289786078?text=Здравствуйте!%20Хочу%20забронировать%20домик%20в%20BALIYA." target="_blank" rel="noopener" class="btn-wood" style="width:100%;justify-content:center;font-size:1rem;padding:17px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
-        Написать в WhatsApp
-      </a>
-    </div>
-  </div>
-</section>
-
-
-<!-- ═══════════════════════════════════════ FOOTER / CONTACTS ═══ -->
-<footer id="contacts" style="background:#141210;padding:64px 20px 32px;">
-  <div style="max-width:1240px;margin:0 auto;">
-
-    <div class="reveal" style="text-align:center;margin-bottom:56px;">
-      <h2 class="display" style="font-size:clamp(3rem,7vw,6.5rem);color:white;line-height:.9;">КОНТАКТЫ</h2>
-    </div>
-
-    <div class="contacts-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin-bottom:52px;">
+      <!-- Links -->
       <div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#C4722A;margin-bottom:12px;">Адрес</div>
-        <p style="font-size:.9rem;color:rgba(255,255,255,.55);line-height:1.7;">Дагестан,<br/>г. Избербаш</p>
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:16px;">Навигация</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="index.html" class="footer-link">Главная</a>
+          <a href="#about" class="footer-link">О комплексе</a>
+          <a href="cottages.html" class="footer-link">Домики</a>
+          <a href="#gallery" class="footer-link">Фотографии</a>
+        </div>
       </div>
       <div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#C4722A;margin-bottom:12px;">Телефон</div>
-        <a href="tel:+79289786078" style="font-size:.9rem;color:rgba(255,255,255,.55);text-decoration:none;display:block;line-height:1.7;">+7 928 978-60-78</a>
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:16px;">Информация</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="#reviews" class="footer-link">Отзывы</a>
+          <a href="contacts.html" class="footer-link">Контакты</a>
+          <span style="font-size:.85rem;color:rgba(255,255,255,.38);">Заезд: 14:00</span>
+          <span style="font-size:.85rem;color:rgba(255,255,255,.38);">Выезд: 12:00</span>
+        </div>
       </div>
       <div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#C4722A;margin-bottom:12px;">Мессенджеры</div>
-        <a href="https://wa.me/79289786078" target="_blank" rel="noopener" style="font-size:.9rem;color:rgba(255,255,255,.55);text-decoration:none;display:block;line-height:1.7;">Написать в WhatsApp</a>
-      </div>
-      <div>
-        <div style="font-size:.68rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#C4722A;margin-bottom:12px;">Социальные сети</div>
-        <a href="https://instagram.com/baliya.caspi" target="_blank" rel="noopener" style="font-size:.9rem;color:rgba(255,255,255,.55);text-decoration:none;display:block;line-height:1.7;">Instagram @baliya.caspi</a>
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:16px;">Контакты</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="tel:+79289786078" class="footer-link">+7 928 978-60-78</a>
+          <a href="https://wa.me/79289786078" target="_blank" rel="noopener" class="footer-link">WhatsApp</a>
+          <span style="font-size:.85rem;color:rgba(255,255,255,.38);">Дагестан, Избербаш</span>
+        </div>
       </div>
     </div>
 
-    <div style="border-top:1px solid rgba(255,255,255,.07);padding-top:24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;">
-      <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-        <svg width="32" height="32" viewBox="0 0 40 40" fill="none">
-          <circle cx="20" cy="20" r="19" stroke="#C4722A" stroke-width="1.4" fill="rgba(196,114,42,.08)"/>
-          <path d="M8 25 Q20 9 32 25 Z" fill="rgba(196,114,42,.18)" stroke="#C4722A" stroke-width="1.6"/>
-          <rect x="13" y="25" width="14" height="9" rx="1" fill="#C4722A" opacity=".75"/>
-        </svg>
-        <span class="serif" style="font-size:1rem;font-weight:600;letter-spacing:.22em;color:white;">BALIYA</span>
-      </a>
-      <div style="display:flex;gap:24px;">
-        <a href="index.html"    style="font-size:.8rem;color:rgba(255,255,255,.3);text-decoration:none;">Главная</a>
-        <a href="cottages.html" style="font-size:.8rem;color:rgba(255,255,255,.3);text-decoration:none;">Домики</a>
-        <a href="contacts.html" style="font-size:.8rem;color:rgba(255,255,255,.3);text-decoration:none;">Контакты</a>
-      </div>
+    <div style="border-top:1px solid rgba(255,255,255,.07);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
       <p style="font-size:.75rem;color:rgba(255,255,255,.2);">© 2026 BALIYA. Дагестан, Избербаш.</p>
+      <p style="font-size:.75rem;color:rgba(255,255,255,.2);">Балийские домики у Каспийского моря</p>
     </div>
   </div>
 </footer>
-
-
-<script>
-  document.getElementById('burger').addEventListener('click', () => {
-    const m = document.getElementById('mobile-nav');
-    m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
-  });
-  function closeMob() { document.getElementById('mobile-nav').style.display = 'none'; }
-
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-</script>
-
-<!-- ИИ АССИСТЕНТ -->
 <style>
-#chat-bubble{position:fixed;bottom:1.75rem;right:1.75rem;z-index:9999}
-#chat-btn{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#5C3D1E,#8B6340);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(92,61,30,.45);transition:transform .2s,box-shadow .2s;border:none}
-#chat-btn:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(92,61,30,.55)}
-#chat-window{position:absolute;bottom:72px;right:0;width:340px;background:#fff;border-radius:16px;box-shadow:0 12px 48px rgba(0,0,0,.18);border:1px solid #e8ddd0;display:none;flex-direction:column;overflow:hidden;max-height:520px}
-#chat-window.open{display:flex}
-#chat-head{background:linear-gradient(135deg,#3B2009,#5C3D1E);padding:1rem 1.25rem;display:flex;align-items:center;gap:.75rem}
-#chat-avatar{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-#chat-msgs{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.65rem;min-height:200px;background:#faf8f5}
-.msg-bot{background:#fff;color:#2c1a08;border-radius:12px 12px 12px 3px;padding:.65rem 1rem;font-size:.82rem;max-width:88%;line-height:1.6;border:1px solid #ede5d8;box-shadow:0 1px 4px rgba(0,0,0,.05)}
-.msg-user{background:linear-gradient(135deg,#5C3D1E,#8B6340);color:#fff;border-radius:12px 12px 3px 12px;padding:.65rem 1rem;font-size:.82rem;max-width:88%;align-self:flex-end;line-height:1.6}
-#chat-quick{padding:.6rem 1rem;display:flex;flex-wrap:wrap;gap:.4rem;border-top:1px solid #f0e8de;background:#faf8f5}
-.qbtn{background:#fff;color:#5C3D1E;border-radius:999px;padding:.32rem .8rem;font-size:.72rem;cursor:pointer;border:1px solid #d4c4b0;transition:all .2s;font-family:'Jost',sans-serif}
-.qbtn:hover{background:#5C3D1E;color:#fff;border-color:#5C3D1E}
-#chat-input-row{padding:.7rem 1rem;border-top:1px solid #f0e8de;display:flex;gap:.5rem;background:#fff}
-#chat-input{flex:1;border:1px solid #ddd4c8;border-radius:8px;padding:.45rem .8rem;font-size:.82rem;outline:none;font-family:'Jost',sans-serif;color:#2c1a08;background:#faf8f5}
-#chat-input:focus{border-color:#8B6340}
-#chat-send{background:#5C3D1E;color:#fff;border-radius:8px;padding:.45rem .9rem;cursor:pointer;border:none;font-size:.9rem;transition:background .2s}
-#chat-send:hover{background:#3B2009}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr 1fr!important;}}
+@media(max-width:500px){.footer-grid{grid-template-columns:1fr!important;}}
 </style>
 
-<div id="chat-bubble">
+
+<!-- ══════════════════════ CHAT WIDGET ══════════════════════ -->
+<div id="chat-bubble" style="position:fixed;bottom:1.75rem;right:1.75rem;z-index:9999;">
   <div id="chat-window">
-    <div id="chat-head">
-      <div id="chat-avatar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <div style="background:linear-gradient(135deg,#3B2009,#C4722A);padding:1rem 1.25rem;display:flex;align-items:center;gap:.75rem;">
+      <div style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.75"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
       </div>
       <div>
-        <div style="font-size:.88rem;font-weight:600;color:#fff;letter-spacing:.04em">Ассистент BALIYA</div>
-        <div style="font-size:.7rem;color:rgba(255,255,255,.6);margin-top:.1rem">Онлайн · Отвечает сразу</div>
+        <div style="font-size:.88rem;font-weight:600;color:#fff;">Ассистент BALIYA</div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,.65);margin-top:.1rem;">Онлайн · Отвечает сразу</div>
       </div>
-      <button onclick="toggleChat()" style="margin-left:auto;background:none;border:none;color:rgba(255,255,255,.5);font-size:1.1rem;cursor:pointer">✕</button>
+      <button onclick="toggleChat()" style="margin-left:auto;background:none;border:none;color:rgba(255,255,255,.6);font-size:1.1rem;cursor:pointer;" aria-label="Закрыть чат">✕</button>
     </div>
-    <div id="chat-msgs"></div>
-    <div id="chat-quick">
-      <button class="qbtn" onclick="ask('Хочу забронировать')">🏡 Забронировать</button>
-      <button class="qbtn" onclick="ask('Сколько стоит?')">💰 Цены</button>
-      <button class="qbtn" onclick="ask('Что входит?')">✨ Удобства</button>
-      <button class="qbtn" onclick="ask('Как добраться?')">📍 Адрес</button>
+    <div id="chat-msgs" style="flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:.65rem;min-height:200px;background:#faf8f5;"></div>
+    <div style="padding:.6rem 1rem;display:flex;flex-wrap:wrap;gap:.4rem;border-top:1px solid #EDE5D8;background:#faf8f5;">
+      <button onclick="ask('Хочу забронировать')" style="background:#fff;color:#6B5744;border-radius:999px;padding:.32rem .8rem;font-size:.72rem;cursor:pointer;border:1px solid #EDE5D8;transition:all .2s;font-family:'Inter',sans-serif;" onmouseover="this.style.background='#C4722A';this.style.color='#fff';this.style.borderColor='#C4722A'" onmouseout="this.style.background='#fff';this.style.color='#6B5744';this.style.borderColor='#EDE5D8'">Забронировать</button>
+      <button onclick="ask('Сколько стоит?')" style="background:#fff;color:#6B5744;border-radius:999px;padding:.32rem .8rem;font-size:.72rem;cursor:pointer;border:1px solid #EDE5D8;transition:all .2s;font-family:'Inter',sans-serif;" onmouseover="this.style.background='#C4722A';this.style.color='#fff';this.style.borderColor='#C4722A'" onmouseout="this.style.background='#fff';this.style.color='#6B5744';this.style.borderColor='#EDE5D8'">Цены</button>
+      <button onclick="ask('Что входит?')" style="background:#fff;color:#6B5744;border-radius:999px;padding:.32rem .8rem;font-size:.72rem;cursor:pointer;border:1px solid #EDE5D8;transition:all .2s;font-family:'Inter',sans-serif;" onmouseover="this.style.background='#C4722A';this.style.color='#fff';this.style.borderColor='#C4722A'" onmouseout="this.style.background='#fff';this.style.color='#6B5744';this.style.borderColor='#EDE5D8'">Удобства</button>
+      <button onclick="ask('Как добраться?')" style="background:#fff;color:#6B5744;border-radius:999px;padding:.32rem .8rem;font-size:.72rem;cursor:pointer;border:1px solid #EDE5D8;transition:all .2s;font-family:'Inter',sans-serif;" onmouseover="this.style.background='#C4722A';this.style.color='#fff';this.style.borderColor='#C4722A'" onmouseout="this.style.background='#fff';this.style.color='#6B5744';this.style.borderColor='#EDE5D8'">Адрес</button>
     </div>
-    <div id="chat-input-row">
-      <input id="chat-input" placeholder="Напишите вопрос..." onkeydown="if(event.key==='Enter')sendMsg()"/>
-      <button id="chat-send" onclick="sendMsg()">→</button>
+    <div style="padding:.7rem 1rem;border-top:1px solid #EDE5D8;display:flex;gap:.5rem;background:#fff;">
+      <input id="chat-input" placeholder="Напишите вопрос..." onkeydown="if(event.key==='Enter')sendMsg()" style="flex:1;border:1px solid #EDE5D8;border-radius:8px;padding:.45rem .8rem;font-size:.82rem;outline:none;font-family:'Inter',sans-serif;color:#1C1A18;background:#FAF7F2;" aria-label="Сообщение"/>
+      <button onclick="sendMsg()" style="background:#C4722A;color:#fff;border-radius:8px;padding:.45rem .9rem;cursor:pointer;border:none;font-size:.9rem;transition:background .2s;" onmouseover="this.style.background='#9B5018'" onmouseout="this.style.background='#C4722A'" aria-label="Отправить">→</button>
     </div>
   </div>
-  <button id="chat-btn" onclick="toggleChat()">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.75"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+  <button id="chat-btn" onclick="toggleChat()" aria-label="Открыть чат" style="width:58px;height:58px;border-radius:50%;background:linear-gradient(135deg,#9B5018,#C4722A);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(196,114,42,.4);transition:transform .2s,box-shadow .2s;border:none;" onmouseover="this.style.transform='scale(1.08)';this.style.boxShadow='0 6px 28px rgba(196,114,42,.5)'" onmouseout="this.style.transform='scale(1)';this.style.boxShadow='0 4px 20px rgba(196,114,42,.4)'">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.75"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
   </button>
 </div>
 
-<script>
-var chatOpen = false;
-var chatStarted = false;
-var WA = 'https://wa.me/79289786078';
 
+<!-- ══════════════════════ SCRIPTS ══════════════════════ -->
+<script>
+// Navbar burger
+document.getElementById('burger').addEventListener('click', () => {
+  const m = document.getElementById('mobile-nav');
+  m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+});
+function closeMob() { document.getElementById('mobile-nav').style.display = 'none'; }
+
+// Scroll reveal
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); } });
+}, { threshold: 0.08 });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// Date picker (simple)
+const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+let dateIn = null, dateOut = null;
+function setDate(type) {
+  const d = new Date();
+  if (type === 'in') {
+    d.setDate(d.getDate() + 2);
+    dateIn = d;
+    document.getElementById('date-in-display').textContent = d.getDate() + ' ' + months[d.getMonth()];
+    document.getElementById('date-in-display').style.color = '#1C1A18';
+    document.getElementById('date-in-display').style.fontWeight = '500';
+    if (!dateOut) {
+      const dOut = new Date(d); dOut.setDate(dOut.getDate() + 3); dateOut = dOut;
+      document.getElementById('date-out-display').textContent = dOut.getDate() + ' ' + months[dOut.getMonth()];
+      document.getElementById('date-out-display').style.color = '#1C1A18';
+      document.getElementById('date-out-display').style.fontWeight = '500';
+    }
+  }
+  updateBookLink();
+}
+function updateBookLink() {
+  const btn = document.getElementById('book-btn');
+  let msg = 'Здравствуйте! Хочу забронировать домик в BALIYA.';
+  if (dateIn) {
+    msg += ' Заезд: ' + dateIn.getDate() + ' ' + months[dateIn.getMonth()];
+    if (dateOut) msg += ', выезд: ' + dateOut.getDate() + ' ' + months[dateOut.getMonth()];
+    const g = document.getElementById('guests-display').textContent;
+    msg += '. ' + g + '.';
+  }
+  btn.href = 'https://wa.me/79289786078?text=' + encodeURIComponent(msg);
+}
+
+// Guests cycle
+const guestOpts = ['1 гость','2 гостя','3 гостя','4 гостя','5 гостей','6 гостей'];
+let guestIdx = 1;
+function cycleGuests() {
+  guestIdx = (guestIdx + 1) % guestOpts.length;
+  document.getElementById('guests-display').textContent = guestOpts[guestIdx];
+  updateBookLink();
+}
+
+// Chat
+var chatOpen = false, chatStarted = false;
+var WA = 'https://wa.me/79289786078';
 function toggleChat() {
   chatOpen = !chatOpen;
   var win = document.getElementById('chat-window');
   if (chatOpen) { win.classList.add('open'); if (!chatStarted) { initChat(); chatStarted = true; } }
   else win.classList.remove('open');
 }
-
-function initChat() {
-  botMsg('Здравствуйте! 🌊 Я ассистент комплекса BALIYA на Каспии. Помогу с бронированием и отвечу на вопросы. Чем могу помочь?');
-}
-
+function initChat() { botMsg('Здравствуйте! Я ассистент BALIYA. Помогу с бронированием домика на Каспии. Чем могу помочь?'); }
 function botMsg(text) {
-  var msgs = document.getElementById('chat-msgs');
-  var div = document.createElement('div');
-  div.className = 'msg-bot';
-  div.innerHTML = text;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
+  var m = document.getElementById('chat-msgs');
+  var d = document.createElement('div'); d.className = 'msg-bot'; d.innerHTML = text;
+  m.appendChild(d); m.scrollTop = m.scrollHeight;
 }
-
 function userMsg(text) {
-  var msgs = document.getElementById('chat-msgs');
-  var div = document.createElement('div');
-  div.className = 'msg-user';
-  div.textContent = text;
-  msgs.appendChild(div);
-  msgs.scrollTop = msgs.scrollHeight;
+  var m = document.getElementById('chat-msgs');
+  var d = document.createElement('div'); d.className = 'msg-user'; d.textContent = text;
+  m.appendChild(d); m.scrollTop = m.scrollHeight;
 }
-
-function ask(text) {
-  userMsg(text);
-  setTimeout(function() { reply(text); }, 400);
-}
-
+function ask(text) { userMsg(text); setTimeout(function(){reply(text);}, 400); }
 function sendMsg() {
-  var inp = document.getElementById('chat-input');
-  var text = inp.value.trim();
-  if (!text) return;
-  inp.value = '';
-  userMsg(text);
-  setTimeout(function() { reply(text); }, 400);
+  var inp = document.getElementById('chat-input'), text = inp.value.trim();
+  if (!text) return; inp.value = ''; userMsg(text); setTimeout(function(){reply(text);}, 400);
 }
-
 function reply(text) {
   var t = text.toLowerCase();
   if (t.includes('бронир') || t.includes('забронир') || t.includes('хочу')) {
-    botMsg('Отлично! Для бронирования напишите нам в WhatsApp — ответим в течение нескольких минут и подберём удобный домик 🏡<br><br><a href="' + WA + '?text=Здравствуйте! Хочу забронировать домик в BALIYA." target="_blank" style="background:#5C3D1E;color:#fff;padding:.45rem 1rem;border-radius:8px;text-decoration:none;font-size:.78rem;display:inline-block;margin-top:.3rem">Написать в WhatsApp →</a>');
-  } else if (t.includes('цен') || t.includes('сколько') || t.includes('стоит') || t.includes('прайс')) {
-    botMsg('Стоимость зависит от домика и сезона:<br><br>🏡 <b>Стандарт</b> — от 5 000 ₽/сутки<br>🏡 <b>Комфорт</b> — от 7 000 ₽/сутки<br>🏡 <b>Премиум</b> — от 10 000 ₽/сутки<br><br>Точную цену на ваши даты уточним в WhatsApp.');
-  } else if (t.includes('удобств') || t.includes('входит') || t.includes('есть') || t.includes('услуг')) {
-    botMsg('В каждом домике:<br>🛏 Спальные места<br>🚿 Душ и санузел<br>❄️ Кондиционер<br>📺 Телевизор<br>🍳 Кухня<br>🔥 Мангал<br>🌊 Выход к Каспию<br>🅿️ Парковка');
-  } else if (t.includes('адрес') || t.includes('добраться') || t.includes('где') || t.includes('находит')) {
-    botMsg('📍 Мы находимся в Избербаше, на берегу Каспийского моря.<br><br>Точный адрес и схему проезда отправим при подтверждении брони в WhatsApp.');
-  } else if (t.includes('свобод') || t.includes('наличи') || t.includes('дат')) {
-    botMsg('Для проверки свободных дат напишите нам в WhatsApp — уточним наличие и быстро забронируем для вас 📅<br><br><a href="' + WA + '?text=Здравствуйте! Хочу проверить наличие свободных домиков." target="_blank" style="background:#5C3D1E;color:#fff;padding:.45rem 1rem;border-radius:8px;text-decoration:none;font-size:.78rem;display:inline-block;margin-top:.3rem">Проверить в WhatsApp →</a>');
-  } else if (t.includes('вместим') || t.includes('человек') || t.includes('гост')) {
-    botMsg('Домики рассчитаны на разное количество гостей:<br>👫 На 2 человека<br>👨‍👩‍👧 На 4 человека<br>👨‍👩‍👧‍👦 На 6-8 человек<br><br>Есть и большие домики для компаний! Уточните количество гостей в WhatsApp.');
+    botMsg('Для бронирования напишите нам в WhatsApp — ответим быстро и подберём домик!<br><br><a href="' + WA + '?text=Здравствуйте! Хочу забронировать домик в BALIYA." target="_blank" style="background:#C4722A;color:#fff;padding:.45rem 1rem;border-radius:8px;text-decoration:none;font-size:.78rem;display:inline-block;margin-top:.3rem">Написать в WhatsApp →</a>');
+  } else if (t.includes('цен') || t.includes('сколько') || t.includes('стоит')) {
+    botMsg('Стоимость зависит от домика и сезона:<br><br><b>Стандарт</b> — от 5 000 ₽/сутки<br><b>Комфорт</b> — от 7 000 ₽/сутки<br><b>Премиум</b> — от 10 000 ₽/сутки<br><br>Точную цену уточним в WhatsApp.');
+  } else if (t.includes('удобств') || t.includes('входит') || t.includes('есть')) {
+    botMsg('В каждом домике: спальные места, душ, кондиционер, телевизор, кухня, мангал, Wi-Fi, парковка. Выход к Каспию 100м.');
+  } else if (t.includes('адрес') || t.includes('добраться') || t.includes('где')) {
+    botMsg('Мы находимся в Избербаше на берегу Каспийского моря, Дагестан. Точный адрес отправим при подтверждении брони.');
   } else {
-    botMsg('Спасибо за вопрос! Для быстрого ответа напишите нам в WhatsApp — онлайн 24/7 🌊<br><br><a href="' + WA + '" target="_blank" style="background:#5C3D1E;color:#fff;padding:.45rem 1rem;border-radius:8px;text-decoration:none;font-size:.78rem;display:inline-block;margin-top:.3rem">Написать в WhatsApp →</a>');
+    botMsg('Спасибо за вопрос! Для быстрого ответа напишите в WhatsApp.<br><br><a href="' + WA + '" target="_blank" style="background:#C4722A;color:#fff;padding:.45rem 1rem;border-radius:8px;text-decoration:none;font-size:.78rem;display:inline-block;margin-top:.3rem">Написать в WhatsApp →</a>');
   }
 }
-
-setTimeout(function() {
-  if (!chatStarted) {
-    document.getElementById('chat-btn').style.animation = 'pulse 2s infinite';
-  }
-}, 10000);
 </script>
+
 </body>
 </html>
