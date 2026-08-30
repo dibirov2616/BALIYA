@@ -34,7 +34,15 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', system-ui, sans-serif; background: #fff; color: #1C1A18; overflow-x: hidden; margin: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: #FBF8F2;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='150' viewBox='0 0 120 150'%3E%3Cg fill='none' stroke='%23C4722A'%3E%3Cpath d='M0 25 Q30 15 60 25 Q90 35 120 25' stroke-width='1.6' stroke-opacity='0.08'/%3E%3Cpath d='M0 70 Q30 56 60 70 Q90 84 120 70' stroke-width='2' stroke-opacity='0.12'/%3E%3Cpath d='M0 118 Q30 100 60 118 Q90 136 120 118' stroke-width='2.5' stroke-opacity='0.17'/%3E%3C/g%3E%3C/svg%3E");
+      background-repeat: repeat;
+      color: #1C1A18;
+      overflow-x: hidden;
+      margin: 0;
+    }
 
     .display { font-family: 'DM Serif Display', Georgia, serif; }
 
@@ -54,6 +62,14 @@
       .date-row { flex-direction: column; }
       .date-row > * { border-right: none !important; border-bottom: 1px solid #EDE5D8; }
     }
+    @media (max-width: 860px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr) !important; grid-auto-rows: 150px !important; }
+    }
+    @media (max-width: 480px) {
+      .features-grid { grid-template-columns: 1fr !important; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr) !important; grid-auto-rows: 120px !important; }
+    }
 
     /* Booking card */
     .booking-card {
@@ -67,8 +83,14 @@
     .field-placeholder { font-size: .85rem; color: #B8A898; }
     .date-field { flex: 1; padding: 14px 18px; cursor: pointer; transition: background .15s; }
     .date-field:hover { background: #FAF7F2; }
-    .date-row { display: flex; border: 1px solid #EDE5D8; border-radius: 14px; overflow: hidden; background: #fff; margin-bottom: 12px; }
+    .date-row { display: flex; border: 1px solid #EDE5D8; border-radius: 14px; overflow: hidden; background: #fff; margin-bottom: 12px; position: relative; }
     .date-field:first-child { border-right: 1px solid #EDE5D8; }
+
+    /* Date popup */
+    .date-popup { display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #fff; border: 1px solid #EDE5D8; border-radius: 14px; box-shadow: 0 12px 40px rgba(28,26,24,.14); padding: 12px; z-index: 10; max-height: 220px; overflow-y: auto; }
+    .date-popup.open { display: flex; flex-wrap: wrap; gap: 6px; }
+    .day-pill { padding: 8px 10px; border: 1px solid #EDE5D8; border-radius: 10px; font-size: .78rem; color: #1C1A18; cursor: pointer; background: #fff; transition: background .15s, border-color .15s; white-space: nowrap; }
+    .day-pill:hover { background: #FAF7F2; border-color: #C4722A; }
 
     /* Guest selector */
     .guest-field { width: 100%; padding: 14px 18px; border: 1px solid #EDE5D8; border-radius: 14px; background: #fff; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: border-color .2s; margin-bottom: 16px; }
@@ -129,9 +151,42 @@
     @media (prefers-reduced-motion: reduce) {
       .reveal, .gallery-img, .feature-card, .btn-book { transition: none !important; }
     }
+
+    /* Лодка на горизонте — декоративный слой, смещается при скролле */
+    #boat-layer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 9%;
+      height: 1px;
+      background: rgba(196,114,42,.1);
+      pointer-events: none;
+      z-index: -1;
+    }
+    #boat-svg {
+      position: absolute;
+      top: -19px;
+      left: 8%;
+      opacity: .5;
+      will-change: transform;
+      transform-origin: 50% 70%;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #boat-svg { transform: none !important; }
+    }
   </style>
 </head>
 <body>
+
+<!-- Лодка на горизонте моря — плывёт при скролле -->
+<div id="boat-layer" aria-hidden="true">
+  <svg id="boat-svg" width="46" height="34" viewBox="0 0 46 34" fill="none">
+    <path d="M23 4 L23 21" stroke="#9B5018" stroke-width="1.3"/>
+    <path d="M23 5 L34 20 L23 20 Z" fill="#C4722A" fill-opacity=".8"/>
+    <path d="M23 9 L14 20 L23 20 Z" fill="#8A7860" fill-opacity=".6"/>
+    <path d="M6 21 Q23 30 40 21 L35 26 Q23 31 11 26 Z" fill="#1C1A18" fill-opacity=".72"/>
+  </svg>
+</div>
 
 <!-- ══════════════════════ NAVBAR ══════════════════════ -->
 <nav id="navbar">
@@ -182,7 +237,7 @@
 </nav>
 
 <!-- ══════════════════════ HERO ══════════════════════ -->
-<section style="background:#fff;padding-top:70px;position:relative;padding-bottom:56px;">
+<section style="background:transparent;padding-top:70px;position:relative;padding-bottom:56px;">
 
   <!-- Фото: в потоке, с отступом слева 27%, справа 5%, округлые углы со всех сторон -->
   <div style="margin:32px 4% 0 25%;border-radius:18px;overflow:hidden;height:490px;">
@@ -191,18 +246,22 @@
 
   <!-- Карточка: абсолютно поверх фото, слева, перекрывает левый край фото -->
   <div style="position:absolute;top:130px;left:5%;width:390px;background:#fff;border-radius:18px;box-shadow:0 6px 40px rgba(28,26,24,.13);padding:28px 26px;z-index:2;">
-    <h1 class="display" style="font-size:1.95rem;line-height:1.15;color:#1C1A18;margin:0 0 8px;">BALIYA: аренда домиков</h1>
+    <h1 class="display" style="font-size:1.95rem;line-height:1.15;color:#1C1A18;margin:0 0 6px;">BALIYA</h1>
+    <div style="font-size:.95rem;font-weight:600;color:#C4722A;margin:0 0 10px;">Гостевые домики на берегу моря</div>
     <p style="font-size:.85rem;color:#8A7860;line-height:1.65;margin:0 0 20px;">Ищите и бронируйте уникальные домики в балийском стиле на Каспии</p>
 
-    <div class="date-row" style="margin-bottom:10px;">
-      <div class="date-field" onclick="setDate('in')">
-        <div class="field-label">Заезд</div>
-        <div id="date-in-display" class="field-placeholder">Когда?</div>
+    <div style="position:relative;margin-bottom:10px;">
+      <div class="date-row" style="margin-bottom:0;">
+        <div class="date-field" onclick="toggleDatePopup('in')">
+          <div class="field-label">Заезд</div>
+          <div id="date-in-display" class="field-placeholder">Когда?</div>
+        </div>
+        <div class="date-field" onclick="toggleDatePopup('out')">
+          <div class="field-label">Выезд</div>
+          <div id="date-out-display" class="field-placeholder">Когда?</div>
+        </div>
       </div>
-      <div class="date-field" onclick="setDate('out')">
-        <div class="field-label">Выезд</div>
-        <div id="date-out-display" class="field-placeholder">Когда?</div>
-      </div>
+      <div id="date-popup" class="date-popup"></div>
     </div>
     <div class="guest-field" onclick="cycleGuests()" style="margin-bottom:14px;">
       <div>
@@ -218,6 +277,163 @@
   </div>
 
 </section>
+
+<!-- ══════════════════════ ПРЕИМУЩЕСТВА ══════════════════════ -->
+<section id="about" style="background:transparent;padding:8px 6% 56px;position:relative;">
+  <div class="features-grid" style="max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;">
+
+    <div class="feature-card" style="text-align:center;">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="1.75" style="margin:0 auto 12px;"><path d="M2 17c1.5 1.3 3 1.3 4.5 0s3-1.3 4.5 0 3 1.3 4.5 0 3-1.3 4.5 0"/><path d="M2 12c1.5 1.3 3 1.3 4.5 0s3-1.3 4.5 0 3 1.3 4.5 0 3-1.3 4.5 0"/><path d="M12 3v7"/></svg>
+      <div style="font-weight:600;font-size:.92rem;color:#1C1A18;margin-bottom:4px;">100 м до моря</div>
+      <div style="font-size:.78rem;color:#8A7860;line-height:1.5;">Прямой выход к Каспию</div>
+    </div>
+
+    <div class="feature-card" style="text-align:center;">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="1.75" style="margin:0 auto 12px;"><path d="M3 11 12 4l9 7"/><path d="M5 10v9h14v-9"/><path d="M10 19v-5h4v5"/></svg>
+      <div style="font-weight:600;font-size:.92rem;color:#1C1A18;margin-bottom:4px;">8 домиков</div>
+      <div style="font-size:.78rem;color:#8A7860;line-height:1.5;">В балийском стиле</div>
+    </div>
+
+    <div class="feature-card" style="text-align:center;">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="1.75" style="margin:0 auto 12px;"><path d="M12 2c-2 3-3 5-3 7a3 3 0 0 0 6 0c0-2-1-4-3-7Z"/><path d="M5 21c1-4 3-6 7-6s6 2 7 6"/></svg>
+      <div style="font-weight:600;font-size:.92rem;color:#1C1A18;margin-bottom:4px;">Лаундж и мангал</div>
+      <div style="font-size:.78rem;color:#8A7860;line-height:1.5;">Зона отдыха у каждого домика</div>
+    </div>
+
+    <div class="feature-card" style="text-align:center;">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C4722A" stroke-width="1.75" style="margin:0 auto 12px;"><path d="M2 8.5c5.5-5.3 14.5-5.3 20 0"/><path d="M5.5 12c3.7-3.5 9.3-3.5 13 0"/><path d="M9 15.5c1.9-1.8 4.1-1.8 6 0"/><circle cx="12" cy="19" r="1" fill="#C4722A" stroke="none"/></svg>
+      <div style="font-weight:600;font-size:.92rem;color:#1C1A18;margin-bottom:4px;">Wi-Fi и парковка</div>
+      <div style="font-size:.78rem;color:#8A7860;line-height:1.5;">Всё для комфортного отдыха</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════ ВИДЕО ══════════════════════ -->
+<section style="background:transparent;padding:64px 12% 64px;position:relative;">
+  <p style="max-width:640px;margin:0 auto 20px;text-align:center;font-size:.82rem;font-style:italic;color:#8A7860;line-height:1.7;">BALIYA — это не только место для отдыха. Это атмосфера, новые знакомства и моменты у моря, которые хочется пересматривать снова и снова.</p>
+  <div style="max-width:1280px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 8px 48px rgba(28,26,24,.1);position:relative;">
+    <video id="baliya-video" src="baliya-video.mp4" style="width:100%;height:auto;max-height:640px;object-fit:cover;display:block;" loop playsinline controls></video>
+    <button id="video-play-btn" onclick="toggleVideoFullscreen(event)" aria-label="Воспроизвести видео" style="position:absolute;inset:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(28,26,24,.28);border:none;cursor:pointer;">
+      <span style="width:76px;height:76px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(28,26,24,.28);">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="#C4722A"><path d="M8 5v14l11-7z"/></svg>
+      </span>
+    </button>
+  </div>
+</section>
+
+<!-- ══════════════════════ ГАЛЕРЕЯ ══════════════════════ -->
+<section id="gallery" style="background:transparent;padding:16px 6% 72px;position:relative;">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="reveal" style="text-align:center;margin-bottom:32px;">
+      <div class="section-eyebrow">Фото</div>
+      <h2 class="section-title">Атмосфера BALIYA</h2>
+    </div>
+    <div class="gallery-grid" style="display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:170px;grid-auto-flow:dense;gap:14px;">
+      <div class="gallery-cell reveal" style="grid-column:span 2;grid-row:span 2;"><img class="gallery-img" src="images/photo-02.jpg" alt="Лаундж-зона BALIYA" loading="lazy" onclick="openLightbox(0)"></div>
+      <div class="gallery-cell reveal d1"><img class="gallery-img" src="images/photo-00.jpg" alt="Домик BALIYA с видом на море" loading="lazy" onclick="openLightbox(1)"></div>
+      <div class="gallery-cell reveal d2"><img class="gallery-img" src="images/photo-14.jpg" alt="Балийская архитектура домиков BALIYA" loading="lazy" onclick="openLightbox(2)"></div>
+      <div class="gallery-cell reveal" style="grid-column:span 2;"><img class="gallery-img" src="images/photo-21.jpg" alt="Кухня-гостиная в домике BALIYA" loading="lazy" onclick="openLightbox(3)"></div>
+      <div class="gallery-cell reveal d1" style="grid-row:span 2;"><img class="gallery-img" src="images/photo-20.jpg" alt="Лестница в домике BALIYA" loading="lazy" onclick="openLightbox(4)"></div>
+      <div class="gallery-cell reveal d2"><img class="gallery-img" src="images/photo-09.jpg" alt="Уличный душ BALIYA" loading="lazy" onclick="openLightbox(5)"></div>
+      <div class="gallery-cell reveal"><img class="gallery-img" src="images/photo-12.jpg" alt="Уютная спальня BALIYA" loading="lazy" onclick="openLightbox(6)"></div>
+      <div class="gallery-cell reveal d1"><img class="gallery-img" src="images/photo-19.jpg" alt="Обеденная зона в домике BALIYA" loading="lazy" onclick="openLightbox(7)"></div>
+      <div class="gallery-cell reveal d2" style="grid-column:span 2;"><img class="gallery-img" src="images/photo-24.jpg" alt="Зона мангала BALIYA" loading="lazy" onclick="openLightbox(8)"></div>
+      <div class="gallery-cell reveal"><img class="gallery-img" src="images/photo-15.jpg" alt="Керамический гриль BALIYA" loading="lazy" onclick="openLightbox(9)"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ ОТЗЫВЫ ══════════════════════ -->
+<section id="reviews" style="background:transparent;padding:16px 6% 80px;position:relative;">
+  <div style="max-width:1200px;margin:0 auto;">
+    <div class="reveal" style="text-align:center;margin-bottom:32px;">
+      <div class="section-eyebrow">Отзывы</div>
+      <h2 class="section-title">Что говорят гости</h2>
+      <a href="https://2gis.ru/makhachkala/geo/70000001103317222" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;margin-top:16px;font-size:.85rem;color:#8A7860;text-decoration:none;">
+        <span style="color:#C4722A;letter-spacing:.05em;">★★★★★</span>
+        <span>5.0 по отзывам на 2ГИС</span>
+      </a>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;">
+
+      <div class="review-card reveal">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:#C4722A;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;">АМ</div>
+          <div>
+            <div style="font-weight:600;font-size:.9rem;color:#1C1A18;">Аssya M</div>
+            <div style="color:#C4722A;font-size:.75rem;">★★★★★</div>
+          </div>
+        </div>
+        <p style="font-size:.85rem;color:#5C4A38;line-height:1.65;margin:0 0 12px;">«Невероятно эстетичное место. Уютные и чистые коттеджи, буквально в нескольких шагах от моря. 10 из 10. Спасибо за тёплый приём»</p>
+        <div style="font-size:.72rem;color:#B8A898;">через 2ГИС</div>
+      </div>
+
+      <div class="review-card reveal d1">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:#C4722A;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;">МД</div>
+          <div>
+            <div style="font-weight:600;font-size:.9rem;color:#1C1A18;">Магомед Дибиров</div>
+            <div style="color:#C4722A;font-size:.75rem;">★★★★★</div>
+          </div>
+        </div>
+        <p style="font-size:.85rem;color:#5C4A38;line-height:1.65;margin:0 0 12px;">«Очень было уютно, уже третий раз отдыхаем. Самые красивые домики для семейного отдыха»</p>
+        <div style="font-size:.72rem;color:#B8A898;">через 2ГИС</div>
+      </div>
+
+      <div class="review-card reveal d2">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:#C4722A;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;">ГМ</div>
+          <div>
+            <div style="font-weight:600;font-size:.9rem;color:#1C1A18;">Гаджимурад Муртазалиев</div>
+            <div style="color:#C4722A;font-size:.75rem;">★★★★★</div>
+          </div>
+        </div>
+        <p style="font-size:.85rem;color:#5C4A38;line-height:1.65;margin:0 0 12px;">«Отдыхал с семьёй пару дней назад. Шикарные домики, и вишенка на торте — эти виды. Рекомендую всем, не пожалеете»</p>
+        <div style="font-size:.72rem;color:#B8A898;">через 2ГИС</div>
+      </div>
+
+      <div class="review-card reveal">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:#C4722A;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;">АУ</div>
+          <div>
+            <div style="font-weight:600;font-size:.9rem;color:#1C1A18;">Алиева Узу</div>
+            <div style="color:#C4722A;font-size:.75rem;">★★★★★</div>
+          </div>
+        </div>
+        <p style="font-size:.85rem;color:#5C4A38;line-height:1.65;margin:0 0 12px;">«Очень красиво»</p>
+        <div style="font-size:.72rem;color:#B8A898;">через 2ГИС</div>
+      </div>
+
+      <div class="review-card reveal d1">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+          <div style="width:40px;height:40px;border-radius:50%;background:#C4722A;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;">Ш</div>
+          <div>
+            <div style="font-weight:600;font-size:.9rem;color:#1C1A18;">Шу Meow</div>
+            <div style="color:#C4722A;font-size:.75rem;">★★★★★</div>
+          </div>
+        </div>
+        <p style="font-size:.85rem;color:#5C4A38;line-height:1.65;margin:0 0 12px;">«Очень тёплая, комфортная атмосфера. В домиках есть всё, что необходимо, можно ни о чём не беспокоиться. Однозначно советую»</p>
+        <div style="font-size:.72rem;color:#B8A898;">через 2ГИС</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ LIGHTBOX ══════════════════════ -->
+<div id="lightbox" onclick="closeLightboxIfBackground(event)">
+  <button class="lb-arrow" style="left:20px;" onclick="prevImage(event)" aria-label="Предыдущее фото">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+  </button>
+  <img id="lightbox-img" src="" alt="Фото BALIYA" style="max-width:88vw;max-height:88vh;border-radius:12px;object-fit:contain;" />
+  <button class="lb-arrow" style="right:20px;" onclick="nextImage(event)" aria-label="Следующее фото">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+  </button>
+  <button onclick="closeLightbox(event)" aria-label="Закрыть" style="position:fixed;top:20px;right:20px;background:rgba(255,255,255,.15);border:none;color:#fff;width:44px;height:44px;border-radius:50%;font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+  </button>
+</div>
 
 
 <!-- ══════════════════════ SCRIPTS ══════════════════════ -->
@@ -235,26 +451,71 @@ const io = new IntersectionObserver(entries => {
 }, { threshold: 0.08 });
 document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
-// Date picker (simple)
+// Date picker (popup — простой список ближайших дат)
 const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
-let dateIn = null, dateOut = null;
-function setDate(type) {
-  const d = new Date();
-  if (type === 'in') {
-    d.setDate(d.getDate() + 2);
-    dateIn = d;
-    document.getElementById('date-in-display').textContent = d.getDate() + ' ' + months[d.getMonth()];
-    document.getElementById('date-in-display').style.color = '#1C1A18';
-    document.getElementById('date-in-display').style.fontWeight = '500';
-    if (!dateOut) {
-      const dOut = new Date(d); dOut.setDate(dOut.getDate() + 3); dateOut = dOut;
-      document.getElementById('date-out-display').textContent = dOut.getDate() + ' ' + months[dOut.getMonth()];
-      document.getElementById('date-out-display').style.color = '#1C1A18';
-      document.getElementById('date-out-display').style.fontWeight = '500';
-    }
+const weekdays = ['вс','пн','вт','ср','чт','пт','сб'];
+let dateIn = null, dateOut = null, currentPopupType = null;
+
+function toggleDatePopup(type) {
+  const popup = document.getElementById('date-popup');
+  if (currentPopupType === type && popup.classList.contains('open')) {
+    popup.classList.remove('open');
+    currentPopupType = null;
+    return;
   }
+  currentPopupType = type;
+  renderDatePopup(type);
+  popup.classList.add('open');
+}
+function renderDatePopup(type) {
+  const popup = document.getElementById('date-popup');
+  popup.innerHTML = '';
+  const today = new Date();
+  for (let i = 1; i <= 21; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() + i);
+    const pill = document.createElement('div');
+    pill.className = 'day-pill';
+    pill.textContent = d.getDate() + ' ' + months[d.getMonth()] + ', ' + weekdays[d.getDay()];
+    pill.onclick = (e) => { e.stopPropagation(); selectDate(type, d); };
+    popup.appendChild(pill);
+  }
+}
+function selectDate(type, d) {
+  if (type === 'in') {
+    dateIn = d;
+    const el = document.getElementById('date-in-display');
+    el.textContent = d.getDate() + ' ' + months[d.getMonth()];
+    el.classList.remove('field-placeholder');
+    el.style.color = '#1C1A18';
+    el.style.fontWeight = '500';
+    if (!dateOut || dateOut <= dateIn) {
+      const dOut = new Date(d); dOut.setDate(dOut.getDate() + 3); dateOut = dOut;
+      const elOut = document.getElementById('date-out-display');
+      elOut.textContent = dOut.getDate() + ' ' + months[dOut.getMonth()];
+      elOut.classList.remove('field-placeholder');
+      elOut.style.color = '#1C1A18';
+      elOut.style.fontWeight = '500';
+    }
+  } else {
+    dateOut = d;
+    const el = document.getElementById('date-out-display');
+    el.textContent = d.getDate() + ' ' + months[d.getMonth()];
+    el.classList.remove('field-placeholder');
+    el.style.color = '#1C1A18';
+    el.style.fontWeight = '500';
+  }
+  document.getElementById('date-popup').classList.remove('open');
+  currentPopupType = null;
   updateBookLink();
 }
+document.addEventListener('click', (e) => {
+  const row = document.querySelector('.date-row');
+  if (row && !row.contains(e.target)) {
+    document.getElementById('date-popup').classList.remove('open');
+    currentPopupType = null;
+  }
+});
 function updateBookLink() {
   const btn = document.getElementById('book-btn');
   let msg = 'Здравствуйте! Хочу забронировать домик в BALIYA.';
@@ -301,6 +562,81 @@ function sendMsg() {
   var inp = document.getElementById('chat-input'), text = inp.value.trim();
   if (!text) return; inp.value = ''; userMsg(text); setTimeout(function(){reply(text);}, 400);
 }
+// Видео — кнопка «воспроизвести» запускает видео и открывает полноэкранный режим
+function toggleVideoFullscreen(e) {
+  const v = document.getElementById('baliya-video');
+  const btn = document.getElementById('video-play-btn');
+  btn.style.display = 'none';
+  v.play();
+  if (v.requestFullscreen) v.requestFullscreen();
+  else if (v.webkitEnterFullscreen) v.webkitEnterFullscreen();
+  else if (v.webkitRequestFullscreen) v.webkitRequestFullscreen();
+}
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) {
+    const v = document.getElementById('baliya-video');
+    const btn = document.getElementById('video-play-btn');
+    if (v && v.paused) btn.style.display = 'flex';
+  }
+});
+
+// Галерея — лайтбокс
+const galleryImages = [
+  'images/photo-02.jpg','images/photo-00.jpg','images/photo-14.jpg','images/photo-21.jpg',
+  'images/photo-20.jpg','images/photo-09.jpg','images/photo-12.jpg','images/photo-19.jpg',
+  'images/photo-24.jpg','images/photo-15.jpg'
+];
+let lightboxIndex = 0;
+function openLightbox(i) {
+  lightboxIndex = i;
+  updateLightboxImage();
+  document.getElementById('lightbox').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function updateLightboxImage() {
+  document.getElementById('lightbox-img').src = galleryImages[lightboxIndex];
+}
+function closeLightbox(e) {
+  if (e) e.stopPropagation();
+  document.getElementById('lightbox').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function closeLightboxIfBackground(e) { if (e.target.id === 'lightbox') closeLightbox(); }
+function prevImage(e) { e.stopPropagation(); lightboxIndex = (lightboxIndex - 1 + galleryImages.length) % galleryImages.length; updateLightboxImage(); }
+function nextImage(e) { e.stopPropagation(); lightboxIndex = (lightboxIndex + 1) % galleryImages.length; updateLightboxImage(); }
+document.addEventListener('keydown', (e) => {
+  const lb = document.getElementById('lightbox');
+  if (lb.style.display !== 'flex') return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowLeft') prevImage(e);
+  if (e.key === 'ArrowRight') nextImage(e);
+});
+
+// Лодка на горизонте — плывёт по волнам: дрейф при скролле + непрерывное покачивание на гребнях
+(function() {
+  const boat = document.getElementById('boat-svg');
+  if (!boat) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const waveLength = 140; // px — «длина» волны под лодкой
+  const riseAmp = 8;      // подъём/спуск на гребне волны
+  const tiltAmp = 10;     // наклон корпуса на склоне волны, град
+  const rippleAmp = 1.6;  // мелкая рябь в состоянии покоя
+  let start = null;
+
+  function frame(ts) {
+    if (start === null) start = ts;
+    const t = (ts - start) / 1000;
+    const x = Math.sin(window.scrollY / 260) * 60;
+    const phase = ((x + t * 22) / waveLength) * Math.PI * 2;
+    const rise = Math.sin(phase) * riseAmp;
+    const tilt = Math.cos(phase) * tiltAmp;
+    const ripple = Math.sin(t * 1.7) * rippleAmp;
+    boat.style.transform = 'translate(' + x + 'px, ' + (rise + ripple) + 'px) rotate(' + tilt + 'deg)';
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
 function reply(text) {
   var t = text.toLowerCase();
   if (t.includes('бронир') || t.includes('забронир') || t.includes('хочу')) {
