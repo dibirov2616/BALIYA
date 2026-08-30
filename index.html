@@ -39,6 +39,7 @@
       background-color: #FBF8F2;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='150' viewBox='0 0 120 150'%3E%3Cg fill='none' stroke='%23C4722A'%3E%3Cpath d='M0 25 Q30 15 60 25 Q90 35 120 25' stroke-width='1.6' stroke-opacity='0.08'/%3E%3Cpath d='M0 70 Q30 56 60 70 Q90 84 120 70' stroke-width='2' stroke-opacity='0.12'/%3E%3Cpath d='M0 118 Q30 100 60 118 Q90 136 120 118' stroke-width='2.5' stroke-opacity='0.17'/%3E%3C/g%3E%3C/svg%3E");
       background-repeat: repeat;
+      animation: bg-drift 24s linear infinite;
       color: #1C1A18;
       overflow-x: hidden;
       margin: 0;
@@ -64,11 +65,9 @@
     }
     @media (max-width: 860px) {
       .features-grid { grid-template-columns: repeat(2, 1fr) !important; }
-      .gallery-grid { grid-template-columns: repeat(2, 1fr) !important; grid-auto-rows: 150px !important; }
     }
     @media (max-width: 480px) {
       .features-grid { grid-template-columns: 1fr !important; }
-      .gallery-grid { grid-template-columns: repeat(2, 1fr) !important; grid-auto-rows: 120px !important; }
     }
 
     /* Booking card */
@@ -148,43 +147,43 @@
     .msg-bot { background: #FAF7F2; color: #2c1a08; border-radius: 12px 12px 12px 3px; padding: .65rem 1rem; font-size: .82rem; max-width: 88%; line-height: 1.6; border: 1px solid #EDE5D8; }
     .msg-user { background: #C4722A; color: #fff; border-radius: 12px 12px 3px 12px; padding: .65rem 1rem; font-size: .82rem; max-width: 88%; align-self: flex-end; line-height: 1.6; }
 
+    @keyframes bg-drift { from { background-position: 0 0; } to { background-position: 120px 150px; } }
+
     @media (prefers-reduced-motion: reduce) {
       .reveal, .gallery-img, .feature-card, .btn-book { transition: none !important; }
+      body { animation: none !important; }
     }
 
-    /* Лодка на горизонте — декоративный слой, смещается при скролле */
-    #boat-layer {
+    /* Море на горизонте — реалистичные волны (сумма гармоник) + лодка, идущая точно по гребню */
+    #sea-strip {
       position: fixed;
       left: 0;
       right: 0;
-      bottom: 9%;
-      height: 1px;
-      background: rgba(196,114,42,.1);
+      bottom: 2%;
+      height: 130px;
+      overflow: hidden;
       pointer-events: none;
       z-index: -1;
+      opacity: .62;
     }
-    #boat-svg {
-      position: absolute;
-      top: -19px;
-      left: 8%;
-      opacity: .5;
-      will-change: transform;
-      transform-origin: 50% 70%;
-    }
-    @media (prefers-reduced-motion: reduce) {
-      #boat-svg { transform: none !important; }
-    }
+    #sea-svg { display: block; width: 100%; height: 100%; }
+    #boat-group { will-change: transform; }
   </style>
 </head>
 <body>
 
-<!-- Лодка на горизонте моря — плывёт при скролле -->
-<div id="boat-layer" aria-hidden="true">
-  <svg id="boat-svg" width="46" height="34" viewBox="0 0 46 34" fill="none">
-    <path d="M23 4 L23 21" stroke="#9B5018" stroke-width="1.3"/>
-    <path d="M23 5 L34 20 L23 20 Z" fill="#C4722A" fill-opacity=".8"/>
-    <path d="M23 9 L14 20 L23 20 Z" fill="#8A7860" fill-opacity=".6"/>
-    <path d="M6 21 Q23 30 40 21 L35 26 Q23 31 11 26 Z" fill="#1C1A18" fill-opacity=".72"/>
+<!-- Море на горизонте: анимированные волны + лодка, идущая точно по гребню -->
+<div id="sea-strip" aria-hidden="true">
+  <svg id="sea-svg" preserveAspectRatio="none" fill="none">
+    <path id="wave-back" fill="none" stroke="#C4722A" stroke-width="1.2" stroke-opacity=".10"/>
+    <path id="wave-mid" fill="none" stroke="#C4722A" stroke-width="1.6" stroke-opacity=".16"/>
+    <path id="wave-front" fill="none" stroke="#9B5018" stroke-width="2" stroke-opacity=".24"/>
+    <g id="boat-group">
+      <path d="M23 4 L23 21" stroke="#9B5018" stroke-width="1.3"/>
+      <path d="M23 5 L34 20 L23 20 Z" fill="#C4722A" fill-opacity=".85"/>
+      <path d="M23 9 L14 20 L23 20 Z" fill="#8A7860" fill-opacity=".65"/>
+      <path d="M6 21 Q23 30 40 21 L35 26 Q23 31 11 26 Z" fill="#1C1A18" fill-opacity=".78"/>
+    </g>
   </svg>
 </div>
 
@@ -329,18 +328,7 @@
       <div class="section-eyebrow">Фото</div>
       <h2 class="section-title">Атмосфера BALIYA</h2>
     </div>
-    <div class="gallery-grid" style="display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:170px;grid-auto-flow:dense;gap:14px;">
-      <div class="gallery-cell reveal" style="grid-column:span 2;grid-row:span 2;"><img class="gallery-img" src="images/photo-02.jpg" alt="Лаундж-зона BALIYA" loading="lazy" onclick="openLightbox(0)"></div>
-      <div class="gallery-cell reveal d1"><img class="gallery-img" src="images/photo-00.jpg" alt="Домик BALIYA с видом на море" loading="lazy" onclick="openLightbox(1)"></div>
-      <div class="gallery-cell reveal d2"><img class="gallery-img" src="images/photo-14.jpg" alt="Балийская архитектура домиков BALIYA" loading="lazy" onclick="openLightbox(2)"></div>
-      <div class="gallery-cell reveal" style="grid-column:span 2;"><img class="gallery-img" src="images/photo-21.jpg" alt="Кухня-гостиная в домике BALIYA" loading="lazy" onclick="openLightbox(3)"></div>
-      <div class="gallery-cell reveal d1" style="grid-row:span 2;"><img class="gallery-img" src="images/photo-20.jpg" alt="Лестница в домике BALIYA" loading="lazy" onclick="openLightbox(4)"></div>
-      <div class="gallery-cell reveal d2"><img class="gallery-img" src="images/photo-09.jpg" alt="Уличный душ BALIYA" loading="lazy" onclick="openLightbox(5)"></div>
-      <div class="gallery-cell reveal"><img class="gallery-img" src="images/photo-12.jpg" alt="Уютная спальня BALIYA" loading="lazy" onclick="openLightbox(6)"></div>
-      <div class="gallery-cell reveal d1"><img class="gallery-img" src="images/photo-19.jpg" alt="Обеденная зона в домике BALIYA" loading="lazy" onclick="openLightbox(7)"></div>
-      <div class="gallery-cell reveal d2" style="grid-column:span 2;"><img class="gallery-img" src="images/photo-24.jpg" alt="Зона мангала BALIYA" loading="lazy" onclick="openLightbox(8)"></div>
-      <div class="gallery-cell reveal"><img class="gallery-img" src="images/photo-15.jpg" alt="Керамический гриль BALIYA" loading="lazy" onclick="openLightbox(9)"></div>
-    </div>
+    <div style="height:600px;"></div>
   </div>
 </section>
 
@@ -612,26 +600,84 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'ArrowRight') nextImage(e);
 });
 
-// Лодка на горизонте — плывёт по волнам: дрейф при скролле + непрерывное покачивание на гребнях
+// Море на горизонте: реалистичные волны (сумма гармоник) + лодка, идущая точно по гребню
 (function() {
-  const boat = document.getElementById('boat-svg');
-  if (!boat) return;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  const waveLength = 140; // px — «длина» волны под лодкой
-  const riseAmp = 8;      // подъём/спуск на гребне волны
-  const tiltAmp = 10;     // наклон корпуса на склоне волны, град
-  const rippleAmp = 1.6;  // мелкая рябь в состоянии покоя
-  let start = null;
+  const svg = document.getElementById('sea-svg');
+  const boat = document.getElementById('boat-group');
+  const pathBack = document.getElementById('wave-back');
+  const pathMid = document.getElementById('wave-mid');
+  const pathFront = document.getElementById('wave-front');
+  if (!svg || !boat) return;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const H = 130;
+  // Каждый слой — сумма двух гармоник разной длины/скорости: так волна выглядит
+  // естественно-неровной, а не как правильная синусоида
+  const LAYERS = [
+    { amps: [6, 3],  wl: [300, 150], speed: [10, -14], phase: [0, 1.1], base: 34 },
+    { amps: [8, 4],  wl: [240, 110], speed: [14, -20], phase: [0.4, 2.0], base: 68 },
+    { amps: [10, 5], wl: [190, 85],  speed: [18, -26], phase: [0.9, 0.3], base: 100 },
+  ];
+
+  function waveY(x, t, layer) {
+    const c = LAYERS[layer];
+    let y = c.base;
+    for (let i = 0; i < c.amps.length; i++) {
+      y += c.amps[i] * Math.sin((2 * Math.PI * (x + t * c.speed[i])) / c.wl[i] + c.phase[i]);
+    }
+    return y;
+  }
+  function waveSlope(x, t, layer) {
+    const c = LAYERS[layer];
+    let dy = 0;
+    for (let i = 0; i < c.amps.length; i++) {
+      dy += c.amps[i] * (2 * Math.PI / c.wl[i]) * Math.cos((2 * Math.PI * (x + t * c.speed[i])) / c.wl[i] + c.phase[i]);
+    }
+    return dy;
+  }
+  function buildPath(layer, t, w) {
+    const step = Math.max(10, w / 90);
+    let d = '';
+    for (let x = 0; x <= w; x += step) {
+      d += (x === 0 ? 'M' : 'L') + x.toFixed(1) + ' ' + waveY(x, t, layer).toFixed(1) + ' ';
+    }
+    return d;
+  }
+
+  let width = window.innerWidth;
+  function resize() {
+    width = window.innerWidth;
+    svg.setAttribute('viewBox', '0 0 ' + width + ' ' + H);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  function placeBoat(x, t) {
+    const y = waveY(x, t, 2);
+    const angle = Math.max(-20, Math.min(20, Math.atan(waveSlope(x, t, 2)) * (180 / Math.PI)));
+    boat.setAttribute('transform',
+      'translate(' + x.toFixed(1) + ' ' + y.toFixed(1) + ') rotate(' + angle.toFixed(1) + ' 23 21) translate(-23 -21)');
+  }
+
+  if (reduced) {
+    pathBack.setAttribute('d', buildPath(0, 0, width));
+    pathMid.setAttribute('d', buildPath(1, 0, width));
+    pathFront.setAttribute('d', buildPath(2, 0, width));
+    placeBoat(width * 0.28, 0);
+    return;
+  }
+
+  const BOAT_SPEED = 24; // px/сек — ход лодки вдоль горизонта
 
   function frame(ts) {
-    if (start === null) start = ts;
-    const t = (ts - start) / 1000;
-    const x = Math.sin(window.scrollY / 260) * 60;
-    const phase = ((x + t * 22) / waveLength) * Math.PI * 2;
-    const rise = Math.sin(phase) * riseAmp;
-    const tilt = Math.cos(phase) * tiltAmp;
-    const ripple = Math.sin(t * 1.7) * rippleAmp;
-    boat.style.transform = 'translate(' + x + 'px, ' + (rise + ripple) + 'px) rotate(' + tilt + 'deg)';
+    const t = ts / 1000;
+    const w = width;
+    pathBack.setAttribute('d', buildPath(0, t, w));
+    pathMid.setAttribute('d', buildPath(1, t, w));
+    pathFront.setAttribute('d', buildPath(2, t, w));
+    const wrap = w + 200;
+    const xBoat = ((t * BOAT_SPEED) % wrap) - 100;
+    placeBoat(xBoat, t);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
